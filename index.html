@@ -1429,6 +1429,7 @@
       populateReceiptCard(newOrder);
 
       closeCart();
+      clearCart();
 
       document.getElementById('rc-modal-close-x').classList.add('hidden');
       document.getElementById('receipt-modal').classList.remove('hidden');
@@ -1534,8 +1535,9 @@
 
         btn.disabled = false;
         btn.textContent = '下載訂單分享給店長';
-        document.getElementById('rc-modal-close-x').classList.remove('hidden');
-        showToast('圖卡下載成功！可點選右上角 ✕ 關閉視窗');
+        clearCart();
+        closeReceiptModal();
+        showToast('圖卡下載成功，已自動關閉視窗！');
       }).catch(err => {
         const node = document.getElementById('receipt-export-node');
         if (node) document.body.removeChild(node);
@@ -1550,7 +1552,13 @@
       const logoTrigger = document.getElementById('brand-logo-trigger');
       const footerTrigger = document.getElementById('footer-copyright');
 
-      const handleTripleClick = () => {
+      const handleTripleClick = (e) => {
+        if (e.currentTarget === logoTrigger) {
+          activeCategory = '全部';
+          renderCategoryTabs();
+          renderProductsGrid();
+        }
+
         tripleClickCounter++;
         if (tripleClickTimer) clearTimeout(tripleClickTimer);
 
