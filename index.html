@@ -843,6 +843,24 @@
     </div>
   </div>
 
+  <!-- Mobile Long-Press Image Save Modal (Fallback for In-App Browsers like LINE) -->
+  <div id="mobile-img-save-modal" class="fixed inset-0 z-[99] bg-[#282522]/90 backdrop-blur-md flex flex-col items-center justify-center p-4 hidden">
+    <div class="max-w-sm w-full bg-[#f5f3ef] border border-[#d8d2c8] p-5 shadow-2xl flex flex-col items-center space-y-4">
+      <div class="text-center space-y-1">
+        <h4 class="font-serif font-bold text-base text-[#282522]">📸 儲存圖卡至手機相簿</h4>
+        <p class="text-xs text-[#8c7759] font-serif font-semibold">請「長按下方圖片」，選擇「儲存影像」或「下載圖片」即可直接存入手機相簿！</p>
+      </div>
+
+      <div class="w-full max-h-[60vh] overflow-y-auto border border-[#d8d2c8] bg-white p-2">
+        <img id="longpress-target-img" class="w-full h-auto object-contain select-none" alt="訂單圖卡" />
+      </div>
+
+      <button onclick="closeLongpressModal()" class="w-full py-3 bg-[#282522] text-[#f5f3ef] text-xs font-serif tracking-widest uppercase font-medium">
+        完成並關閉
+      </button>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -998,6 +1016,12 @@
 
     window.closeReceiptModal = function() {
       document.getElementById('receipt-modal').classList.add('hidden');
+    };
+
+    window.closeLongpressModal = function() {
+      document.getElementById('mobile-img-save-modal').classList.add('hidden');
+      clearCart();
+      closeReceiptModal();
     };
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -1651,20 +1675,59 @@
           const el = clonedDoc.getElementById('receipt-export-node');
           if (el) el.style.height = 'auto';
         }
-      }).then(canvas => {
+      }).then(async canvas => {
         document.body.removeChild(clone);
 
-        const link = document.createElement('a');
         const orderNum = document.getElementById('rc-order-id').textContent;
-        link.download = `XUAN_COFFEE_訂單_${orderNum}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        const fileName = `XUAN_COFFEE_訂單_${orderNum}.png`;
 
-        btn.disabled = false;
-        btn.textContent = '下載訂單分享給店長';
-        clearCart();
-        closeReceiptModal();
-        showToast('圖卡下載成功，已自動關閉視窗！');
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            btn.disabled = false;
+            btn.textContent = '下載訂單分享給店長';
+            showToast('圖卡生成失敗，請重試');
+            return;
+          }
+
+          const dataUrl = canvas.toDataURL('image/png');
+          const file = new File([blob], fileName, { type: 'image/png' });
+
+          // 1. 優先觸發手機原生 Web Share API（可在選單中直接選擇「儲存影像」進相簿）
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                files: [file],
+                title: 'XUAN COFFEE 訂單',
+                text: '這是我的 XUAN COFFEE 訂單明細圖卡'
+              });
+              btn.disabled = false;
+              btn.textContent = '下載訂單分享給店長';
+              clearCart();
+              closeReceiptModal();
+              showToast('請在分享選單中選擇「儲存影像」即可存入相簿！');
+              return;
+            } catch (shareErr) {
+              console.log('Share prompt dismissed or fallback:', shareErr);
+            }
+          }
+
+          // 2. 備案（如 LINE 內建瀏覽器或電腦瀏覽器）：彈出圖片長按儲存畫面
+          const targetImg = document.getElementById('longpress-target-img');
+          if (targetImg) {
+            targetImg.src = dataUrl;
+            document.getElementById('mobile-img-save-modal').classList.remove('hidden');
+          }
+
+          // 同時觸發一般瀏覽器傳統下載檔
+          const link = document.createElement('a');
+          link.download = fileName;
+          link.href = dataUrl;
+          link.click();
+
+          btn.disabled = false;
+          btn.textContent = '下載訂單分享給店長';
+        }, 'image/png');
+
       }).catch(err => {
         const node = document.getElementById('receipt-export-node');
         if (node) document.body.removeChild(node);
