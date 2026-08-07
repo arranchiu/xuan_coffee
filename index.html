@@ -442,7 +442,7 @@
   </div>
 
   <!-- Admin Authentication Modal -->
-  <div id="admin-auth-modal" class="fixed inset-0 z-50 bg-[#282522]/80 backdrop-blur-sm flex items-start sm:items-center justify-center p-4 hidden overflow-y-auto py-12 sm:py-4">
+  <div id="admin-auth-modal" class="fixed inset-0 z-50 bg-[#282522]/85 flex items-start sm:items-center justify-center p-4 hidden overflow-y-auto py-12 sm:py-4">
     <div class="bg-[#f5f3ef] text-[#282522] max-w-sm w-full p-6 sm:p-8 border border-[#d8d2c8] shadow-2xl space-y-5 sm:space-y-6 my-auto">
       <div class="text-center space-y-1.5">
         <span class="text-xs font-serif tracking-widest text-[#787268] uppercase block">Security Check</span>
@@ -951,7 +951,7 @@
   </div>
 
   <!-- Custom Edit Category Modal (Matching Brand Style) -->
-  <div id="edit-category-modal" class="fixed inset-0 z-50 bg-[#282522]/80 backdrop-blur-sm flex items-start sm:items-center justify-center p-4 hidden overflow-y-auto py-12 sm:py-4">
+  <div id="edit-category-modal" class="fixed inset-0 z-50 bg-[#282522]/85 flex items-start sm:items-center justify-center p-4 hidden overflow-y-auto py-12 sm:py-4">
     <div class="bg-[#f5f3ef] text-[#282522] max-w-sm w-full p-6 sm:p-8 border border-[#d8d2c8] shadow-2xl space-y-5 font-serif my-auto">
       <div class="space-y-1">
         <span class="text-xs text-[#787268] tracking-widest uppercase block">Category Editor</span>
@@ -977,7 +977,7 @@
   </div>
 
   <!-- Custom Edit Product Modal Window -->
-  <div id="edit-product-modal" class="fixed inset-0 z-50 bg-[#282522]/80 backdrop-blur-sm flex items-start sm:items-center justify-center p-3 sm:p-4 hidden overscroll-contain overflow-y-auto py-6 sm:py-4">
+  <div id="edit-product-modal" class="fixed inset-0 z-50 bg-[#282522]/85 flex items-start sm:items-center justify-center p-3 sm:p-4 hidden overscroll-contain overflow-y-auto py-6 sm:py-4">
     <div class="bg-[#f5f3ef] text-[#282522] max-w-lg w-full max-h-[90vh] flex flex-col border border-[#d8d2c8] shadow-2xl font-serif my-auto overflow-hidden">
       <div class="px-5 py-4 bg-[#282522] text-[#f5f3ef] border-b border-[#3a3632] flex items-center justify-between shrink-0">
         <div class="font-serif font-light text-xs sm:text-sm tracking-widest uppercase">
@@ -1334,16 +1334,16 @@
         }
       });
 
-      // iOS / Android: 點選任何輸入欄位時，自動平滑將輸入區塊置中捲動至鍵盤上方
+      // 僅在手機版 (螢幕寬度 < 640px) 點選輸入欄位時定位，移除 behavior: 'smooth' 避免 iOS WebKit 游標脫鉤飄移至頂部
       document.addEventListener('focusin', (e) => {
-        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
+        if (window.innerWidth < 640 && ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
           setTimeout(() => {
             try {
-              e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              e.target.scrollIntoView({ block: 'center', inline: 'nearest' });
             } catch (err) {
               console.log('Scroll into view fallback:', err);
             }
-          }, 300);
+          }, 150);
         }
       });
     }
