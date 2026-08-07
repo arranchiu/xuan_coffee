@@ -435,8 +435,8 @@
   </div>
 
   <!-- Admin Authentication Modal -->
-  <div id="admin-auth-modal" class="fixed inset-0 z-50 bg-[#282522]/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-    <div class="bg-[#f5f3ef] text-[#282522] max-w-sm w-full p-6 sm:p-8 border border-[#d8d2c8] shadow-2xl space-y-5 sm:space-y-6">
+  <div id="admin-auth-modal" class="fixed inset-0 z-50 bg-[#282522]/80 backdrop-blur-sm flex items-start sm:items-center justify-center p-4 hidden overflow-y-auto py-12 sm:py-4">
+    <div class="bg-[#f5f3ef] text-[#282522] max-w-sm w-full p-6 sm:p-8 border border-[#d8d2c8] shadow-2xl space-y-5 sm:space-y-6 my-auto">
       <div class="text-center space-y-1.5">
         <span class="text-xs font-serif tracking-widest text-[#787268] uppercase block">Security Check</span>
         <h3 class="font-serif text-xl sm:text-2xl text-[#282522]">管理員身份驗證</h3>
@@ -527,6 +527,11 @@
                 <option value="true">顯示 (點擊開啟管理選單)</option>
                 <option value="false">隱藏</option>
               </select>
+            </div>
+            <div class="pt-2">
+              <button type="button" onclick="saveAllAdminSettings()" class="w-full sm:w-auto px-5 py-2.5 bg-[#282522] hover:bg-black text-[#f5f3ef] text-xs font-serif tracking-widest uppercase transition-all shadow-sm">
+                儲存品牌與抬頭設定
+              </button>
             </div>
           </div>
 
@@ -932,8 +937,8 @@
   </div>
 
   <!-- Custom Edit Category Modal (Matching Brand Style) -->
-  <div id="edit-category-modal" class="fixed inset-0 z-50 bg-[#282522]/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-    <div class="bg-[#f5f3ef] text-[#282522] max-w-sm w-full p-6 sm:p-8 border border-[#d8d2c8] shadow-2xl space-y-5 font-serif">
+  <div id="edit-category-modal" class="fixed inset-0 z-50 bg-[#282522]/80 backdrop-blur-sm flex items-start sm:items-center justify-center p-4 hidden overflow-y-auto py-12 sm:py-4">
+    <div class="bg-[#f5f3ef] text-[#282522] max-w-sm w-full p-6 sm:p-8 border border-[#d8d2c8] shadow-2xl space-y-5 font-serif my-auto">
       <div class="space-y-1">
         <span class="text-xs text-[#787268] tracking-widest uppercase block">Category Editor</span>
         <h3 class="text-lg font-bold text-[#282522]">修改菜單分類名稱</h3>
@@ -951,6 +956,96 @@
           </button>
           <button type="submit" class="w-1/2 py-2.5 bg-[#282522] hover:bg-black text-[#f5f3ef] text-xs tracking-widest uppercase font-medium">
             確認修改
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Custom Edit Product Modal Window -->
+  <div id="edit-product-modal" class="fixed inset-0 z-50 bg-[#282522]/80 backdrop-blur-sm flex items-start sm:items-center justify-center p-3 sm:p-4 hidden overscroll-contain overflow-y-auto py-6 sm:py-4">
+    <div class="bg-[#f5f3ef] text-[#282522] max-w-lg w-full max-h-[90vh] flex flex-col border border-[#d8d2c8] shadow-2xl font-serif my-auto overflow-hidden">
+      <div class="px-5 py-4 bg-[#282522] text-[#f5f3ef] border-b border-[#3a3632] flex items-center justify-between shrink-0">
+        <div class="font-serif font-light text-xs sm:text-sm tracking-widest uppercase">
+          編輯商品品項資訊
+        </div>
+        <button type="button" onclick="closeEditProductModal()" class="text-[#a8a298] hover:text-white text-2xl font-light leading-none p-1 transition-colors" title="關閉視窗">
+          ×
+        </button>
+      </div>
+
+      <form id="edit-product-modal-form" onsubmit="saveEditedProductModal(event)" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+        <input type="hidden" id="modal-prod-id" value="">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
+          <div>
+            <label class="block text-[#524d46] mb-1 font-semibold">菜單分類 <span class="text-red-600">*</span></label>
+            <select id="modal-prod-category" required class="w-full px-3 py-2 bg-white border border-[#d8d2c8] text-[#282522] focus:border-[#282522] outline-none">
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[#524d46] mb-1 font-semibold">詳細產地 (選填)</label>
+            <input type="text" id="modal-prod-origin" placeholder="衣索比亞 耶加雪菲" class="w-full px-3 py-2 bg-white border border-[#d8d2c8] text-[#282522] focus:border-[#282522] outline-none">
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-[#524d46] mb-1 font-semibold">品項名稱 <span class="text-red-600">*</span></label>
+            <input type="text" id="modal-prod-name" required placeholder="紫絹 藝妓" class="w-full px-3 py-2 bg-white border border-[#d8d2c8] text-[#282522] focus:border-[#282522] outline-none">
+          </div>
+
+          <div>
+            <label class="block text-[#524d46] mb-1 font-semibold">烘焙程度</label>
+            <select id="modal-prod-roast" class="w-full px-3 py-2 bg-white border border-[#d8d2c8] text-[#282522] focus:border-[#282522] outline-none">
+              <option value="">無 / 混豆 (不標示)</option>
+              <option value="極淺焙">極淺焙</option>
+              <option value="淺焙">淺焙</option>
+              <option value="中淺焙">中淺焙</option>
+              <option value="中焙">中焙</option>
+              <option value="中深焙">中深焙</option>
+              <option value="深焙">深焙</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[#524d46] mb-1 font-semibold">處理方式</label>
+            <input type="text" id="modal-prod-process" placeholder="日曬 / 水洗 / 蜜處理" class="w-full px-3 py-2 bg-white border border-[#d8d2c8] text-[#282522] focus:border-[#282522] outline-none">
+          </div>
+
+          <div>
+            <label class="block text-[#524d46] mb-1 font-semibold">重量規格</label>
+            <input type="text" id="modal-prod-weight" placeholder="半磅 (227g)" class="w-full px-3 py-2 bg-white border border-[#d8d2c8] text-[#282522] focus:border-[#282522] outline-none">
+          </div>
+
+          <div>
+            <label class="block text-[#524d46] mb-1 font-semibold">售價 (NT$) <span class="text-red-600">*</span></label>
+            <input type="number" id="modal-prod-price" required min="0" placeholder="660" class="w-full px-3 py-2 bg-white border border-[#d8d2c8] text-[#282522] focus:border-[#282522] outline-none">
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-[#524d46] mb-1 font-semibold">風味描述</label>
+            <input type="text" id="modal-prod-notes" placeholder="藍莓、花香、佛手柑、水蜜桃" class="w-full px-3 py-2 bg-white border border-[#d8d2c8] text-[#282522] focus:border-[#282522] outline-none">
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-[#524d46] mb-1 font-semibold">商品圖片網址</label>
+            <input type="url" id="modal-prod-image" placeholder="https://..." class="w-full px-3 py-2 bg-white border border-[#d8d2c8] text-[#282522] focus:border-[#282522] outline-none">
+          </div>
+
+          <div class="sm:col-span-2 flex items-center pt-1">
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-serif text-[#8c7759]">
+              <input type="checkbox" id="modal-prod-star" class="w-4 h-4 accent-[#282522]">
+              <span class="font-bold">★ 店長推薦品項</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex gap-2.5 pt-3 border-t border-[#d8d2c8] shrink-0">
+          <button type="button" onclick="closeEditProductModal()" class="w-1/2 py-2.5 border border-[#282522] text-[#282522] hover:bg-[#ebe7e0] text-xs tracking-widest uppercase transition-colors">
+            取消
+          </button>
+          <button type="submit" class="w-1/2 py-2.5 bg-[#282522] hover:bg-black text-[#f5f3ef] text-xs tracking-widest uppercase font-medium transition-colors shadow-sm">
+            儲存修改
           </button>
         </div>
       </form>
@@ -1210,6 +1305,19 @@
           if (!e.target.form) {
             e.target.blur();
           }
+        }
+      });
+
+      // 當手機點選輸入框時，軟體鍵盤彈出後自動將點選區塊捲動至鍵盤上方中心位置
+      document.addEventListener('focusin', (e) => {
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
+          setTimeout(() => {
+            try {
+              e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } catch (err) {
+              console.log('Scroll into view fallback:', err);
+            }
+          }, 300);
         }
       });
     }
@@ -2354,25 +2462,60 @@
       const p = window.products.find(item => item.id === id);
       if (!p) return;
 
-      document.getElementById('prod-edit-id').value = p.id;
-      document.getElementById('prod-category').value = p.category;
-      document.getElementById('prod-origin').value = p.origin;
-      document.getElementById('prod-name').value = p.name;
-      document.getElementById('prod-roast').value = p.roast;
-      document.getElementById('prod-process').value = p.process;
-      document.getElementById('prod-weight').value = p.weight;
-      document.getElementById('prod-price').value = p.price;
-      document.getElementById('prod-notes').value = p.notes;
-      document.getElementById('prod-image').value = p.image || '';
-      document.getElementById('prod-star').checked = p.isStar;
+      // Populate Modal Category Select Options
+      const catSelect = document.getElementById('modal-prod-category');
+      if (catSelect) {
+        catSelect.innerHTML = '';
+        window.categories.filter(c => c !== '全部').forEach(cat => {
+          const opt = document.createElement('option');
+          opt.value = cat;
+          opt.textContent = cat;
+          catSelect.appendChild(opt);
+        });
+      }
 
-      document.getElementById('product-form-title').textContent = '編輯商品品項';
-      document.getElementById('save-prod-btn').textContent = '儲存商品修改';
-      document.getElementById('cancel-edit-btn').classList.remove('hidden');
+      document.getElementById('modal-prod-id').value = p.id;
+      document.getElementById('modal-prod-category').value = p.category;
+      document.getElementById('modal-prod-origin').value = p.origin || '';
+      document.getElementById('modal-prod-name').value = p.name || '';
+      document.getElementById('modal-prod-roast').value = p.roast || '';
+      document.getElementById('modal-prod-process').value = p.process || '';
+      document.getElementById('modal-prod-weight').value = p.weight || '半磅 (227g)';
+      document.getElementById('modal-prod-price').value = p.price;
+      document.getElementById('modal-prod-notes').value = p.notes || '';
+      document.getElementById('modal-prod-image').value = p.image || '';
+      document.getElementById('modal-prod-star').checked = !!p.isStar;
 
-      const adminPanel = document.getElementById('admin-panel');
-      if (adminPanel) {
-        adminPanel.scrollTo({ top: 0, behavior: 'smooth' });
+      document.getElementById('edit-product-modal').classList.remove('hidden');
+    };
+
+    window.closeEditProductModal = function() {
+      document.getElementById('edit-product-modal').classList.add('hidden');
+    };
+
+    window.saveEditedProductModal = function(e) {
+      e.preventDefault();
+      const editId = document.getElementById('modal-prod-id').value;
+      const category = document.getElementById('modal-prod-category').value;
+      const origin = document.getElementById('modal-prod-origin').value.trim();
+      const name = document.getElementById('modal-prod-name').value.trim();
+      const roast = document.getElementById('modal-prod-roast').value;
+      const process = document.getElementById('modal-prod-process').value.trim();
+      const weight = document.getElementById('modal-prod-weight').value.trim();
+      const price = Number(document.getElementById('modal-prod-price').value);
+      const notes = document.getElementById('modal-prod-notes').value.trim();
+      const image = document.getElementById('modal-prod-image').value.trim();
+      const isStar = document.getElementById('modal-prod-star').checked;
+
+      const index = window.products.findIndex(p => p.id === editId);
+      if (index !== -1) {
+        window.products[index] = { ...window.products[index], category, origin, name, roast, process, weight, price, notes, image, isStar };
+        markUnsavedChanges();
+        saveToCloud();
+        renderAdminProductsList();
+        renderProductsGrid();
+        closeEditProductModal();
+        showToast(`已成功儲存商品「${name}」的修改！`);
       }
     };
 
