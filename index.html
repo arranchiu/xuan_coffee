@@ -1159,10 +1159,33 @@
       updateCartBadge();
       setupTripleClickTriggers();
       setupMobileKeyboardDismiss();
+      setupAdminLoginEnterKey();
       window.addEventListener('resize', () => {
         if (typeof window.updateCategoryScrollIndicators === 'function') window.updateCategoryScrollIndicators();
       });
     });
+
+    function setupAdminLoginEnterKey() {
+      // 專門針對 Mac 與各款瀏覽器，掛載 Enter 鍵與 Form Submit 監聽
+      const adminLoginForm = document.getElementById('admin-login-form');
+      const passInput = document.getElementById('admin-password-input');
+
+      if (adminLoginForm) {
+        adminLoginForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          handleAdminLogin(e);
+        });
+      }
+
+      if (passInput) {
+        passInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            handleAdminLogin(e);
+          }
+        });
+      }
+    }
 
     function setupMobileKeyboardDismiss() {
       const touchContainers = ['cart-drawer', 'admin-panel', 'checkout-form', 'receipt-modal'];
@@ -1181,9 +1204,12 @@
         }
       });
 
+      // 修正：僅對不屬於 Form 的獨立輸入框在按 Enter 時收合鍵盤，避免攔截 Mac / 手機表單送出
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && e.target && e.target.tagName === 'INPUT') {
-          e.target.blur();
+          if (!e.target.form) {
+            e.target.blur();
+          }
         }
       });
     }
