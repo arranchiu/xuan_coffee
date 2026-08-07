@@ -152,9 +152,10 @@
           所有商品
         </h2>
       </div>
-      <div class="text-xs font-serif text-[#8c7759] flex items-center gap-1.5 tracking-wider font-semibold">
-        <span class="text-[#af8e28] text-sm drop-shadow-sm">★</span> 店長推薦品項
-      </div>
+      <button id="star-filter-btn" onclick="toggleStarFilter()" class="text-xs font-serif text-[#8c7759] hover:text-[#282522] flex items-center gap-1.5 tracking-wider font-semibold px-3 py-1.5 border border-[#8c7759]/40 hover:border-[#282522] transition-all rounded-full bg-white/50 cursor-pointer shadow-xs">
+        <span class="text-[#af8e28] text-sm drop-shadow-sm">★</span>
+        <span id="star-filter-text">店長推薦品項</span>
+      </button>
     </div>
 
     <!-- Products Grid Container -->
@@ -484,158 +485,8 @@
               品牌與菜單名稱
             </h3>
             <div>
-              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">店家名稱</label>
-              <input type="text" id="cfg-shop-name" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none">
-            </div>
-            <div>
-              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">菜單副標題</label>
-              <input type="text" id="cfg-shop-subtitle" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none">
-            </div>
-            <div>
-              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">頁尾介紹文字</label>
-              <textarea id="cfg-footer-text" rows="2" placeholder="請輸入頁尾介紹文字" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif"></textarea>
-            </div>
-            <div>
-              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">前台「後台登入提示文字」顯示開關</label>
-              <select id="cfg-show-admin-hint" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
-                <option value="false">隱藏：完全隱藏提示文字（預設推薦）</option>
-                <option value="true">顯示：前台顯示提示</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">自訂 Logo 圖片 (自動同步網頁頁籤 Favicon)</label>
-              <div class="space-y-2">
-                <div class="flex items-center gap-2">
-                  <input type="file" id="cfg-logo-file" accept="image/*" onchange="handleLogoFileUpload(event)" class="hidden">
-                  <button type="button" onclick="document.getElementById('cfg-logo-file').click()" class="px-3 py-2 bg-[#282522] text-[#f5f3ef] text-xs font-serif hover:bg-black transition-colors">
-                    選擇圖片檔案上傳
-                  </button>
-                  <span id="cfg-logo-file-name" class="text-xs text-[#787268] font-serif truncate max-w-[140px]">未選擇檔案</span>
-                  <button type="button" onclick="restoreDefaultLogo()" class="px-3 py-2 border border-[#282522] text-xs text-[#282522] hover:bg-[#ebe7e0] font-serif transition-colors ml-auto">
-                    恢復預設
-                  </button>
-                </div>
-                <input type="url" id="cfg-logo-url" placeholder="或輸入圖片網址 https://..." class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none">
-                <div id="cfg-logo-preview-box" class="flex items-center gap-2 pt-1 hidden">
-                  <span class="text-xs text-[#787268] font-serif">目前 Logo 預覽：</span>
-                  <img id="cfg-logo-preview-img" class="w-8 h-8 rounded-full object-cover border border-[#d8d2c8]" src="" alt="Logo Preview">
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white p-6 border border-[#d8d2c8] space-y-4">
-            <h3 class="font-serif font-semibold text-base text-[#282522] pb-2 border-b border-[#e4e0d8] tracking-wider">
-              全站運費與顯示模式
-            </h3>
-            
-            <div>
-              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">全站商品相片顯示開關</label>
-              <select id="cfg-show-photos" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
-                <option value="true">開啟：全數顯示 1:1 照片圖片</option>
-                <option value="false">關閉：極簡純文字豆單模式</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">滿額免運門檻金額 (NT$)</label>
-              <input type="number" id="cfg-free-shipping" oninput="updateFreeShippingThresholdPreview(this.value)" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
-              <p class="text-xs text-[#8c7759] mt-1 font-serif font-semibold" id="cfg-free-shipping-preview">目前設定：NT$ 2,000</p>
-            </div>
-          </div>
-
-          <div class="bg-white p-6 border border-[#d8d2c8] space-y-4 md:col-span-2">
-            <h3 class="font-serif font-semibold text-base text-[#282522] pb-2 border-b border-[#e4e0d8] tracking-wider">
-              物流與運費選項管理
-            </h3>
-            
-            <div class="flex flex-col sm:flex-row gap-3 items-end pb-4 border-b border-[#e4e0d8]">
-              <div class="flex-1 w-full">
-                <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">物流名稱</label>
-                <input type="text" id="new-ship-name" placeholder="例如：黑貓宅急便 或 面交自取" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
-              </div>
-              <div class="w-full sm:w-36">
-                <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">運費金額 (NT$)</label>
-                <input type="number" id="new-ship-fee" placeholder="60" min="0" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
-              </div>
-              <button type="button" onclick="handleAddShippingMethod()" class="w-full sm:w-auto px-5 py-2 bg-[#282522] hover:bg-black text-[#f5f3ef] text-xs font-serif tracking-widest uppercase transition-all whitespace-nowrap">
-                + 新增物流選項
-              </button>
-            </div>
-
-            <div id="admin-shipping-list" class="space-y-2 pt-2"></div>
-          </div>
-
-          <div class="bg-white p-6 border border-[#d8d2c8] space-y-4 md:col-span-2">
-            <h3 class="font-serif font-semibold text-base text-[#282522] pb-2 border-b border-[#e4e0d8] tracking-wider">
-              匯款帳號與 LINE 付款說明設定
-            </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">銀行名稱與代碼</label>
-                <input type="text" id="cfg-bank-name" placeholder="例：玉山銀行 808" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none">
-              </div>
-              <div>
-                <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">戶名 (Account Holder)</label>
-                <input type="text" id="cfg-bank-holder" placeholder="例：XUAN COFFEE" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none">
-              </div>
-              <div>
-                <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">銀行帳號</label>
-                <input type="text" id="cfg-bank-account" placeholder="1234-5678-9012-3456" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none">
-              </div>
-              <div>
-                <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">LINE ID</label>
-                <input type="text" id="cfg-line-id" placeholder="cow80610" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none">
-              </div>
-            </div>
-            <div>
-              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">LINE Pay 轉帳說明文字</label>
-              <textarea id="cfg-line-pay-notice" rows="2" placeholder="請填寫 LINE Pay 付款說明與步驟" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif"></textarea>
-            </div>
-          </div>
-
-          <div class="bg-white p-6 border border-[#d8d2c8] space-y-4 md:col-span-2">
-            <h3 class="font-serif font-semibold text-base text-[#282522] pb-2 border-b border-[#e4e0d8] tracking-wider">
-              修改後台登入密碼
-            </h3>
-            <div class="flex flex-col sm:flex-row gap-4 items-end">
-              <div class="flex-1">
-                <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">設定新密碼</label>
-                <input type="password" id="cfg-admin-pass" placeholder="請輸入新密碼" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none">
-              </div>
-              <button type="button" onclick="updateAdminPassword()" class="px-5 py-2 bg-[#282522] text-[#f5f3ef] hover:bg-black text-xs font-serif tracking-widest transition-all uppercase">
-                更新密碼
-              </button>
-            </div>
-          </div>
-
-        </form>
-      </div>
-
-      <!-- TAB 2: Product CRUD -->
-      <div id="adm-section-products" class="admin-section hidden space-y-8">
-        <div class="bg-white p-6 border border-[#d8d2c8] space-y-4">
-          <div class="flex items-center justify-between border-b border-[#e4e0d8] pb-3">
-            <h3 id="product-form-title" class="font-serif font-semibold text-base text-[#282522] tracking-wider">
-              新增商品品項
-            </h3>
-            <button id="cancel-edit-btn" onclick="resetProductForm()" class="hidden text-xs text-[#787268] hover:text-[#282522] font-serif underline">
-              取消編輯
-            </button>
-          </div>
-
-          <form id="product-crud-form" onsubmit="handleProductFormSubmit(event)" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            <input type="hidden" id="prod-edit-id" value="">
-
-            <div>
-              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">分類產區 <span class="text-red-600">*</span></label>
-              <select id="prod-category" required class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">詳細產地 <span class="text-red-600">*</span></label>
-              <input type="text" id="prod-origin" required placeholder="衣索比亞 耶加雪菲" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none">
+              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">詳細產地 (選填)</label>
+              <input type="text" id="prod-origin" placeholder="衣索比亞 耶加雪菲" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none">
             </div>
 
             <div>
@@ -644,8 +495,9 @@
             </div>
 
             <div>
-              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">烘焙程度</label>
+              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">烘焙程度 (選填)</label>
               <select id="prod-roast" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
+                <option value="">無 / 混豆 (不標示)</option>
                 <option value="極淺焙">極淺焙</option>
                 <option value="淺焙" selected>淺焙</option>
                 <option value="中淺焙">中淺焙</option>
@@ -899,6 +751,7 @@
     window.orders = JSON.parse(localStorage.getItem('xc_orders')) || [];
     window.cart = JSON.parse(localStorage.getItem('xc_cart')) || [];
     window.activeCategory = '全部';
+    window.onlyStarFilter = false;
 
     let tripleClickCounter = 0;
     let tripleClickTimer = null;
@@ -1021,13 +874,28 @@
     };
 
     window.applySettingsToUI = function() {
-      document.getElementById('banner-text').textContent = `全館滿 ${window.formatNT(window.settings.freeShippingThreshold)} 即享免運優惠`;
-      document.getElementById('shop-title').textContent = window.settings.shopName;
-      document.getElementById('shop-subtitle').childNodes[0].textContent = window.settings.shopSubtitle + ' ';
-      document.getElementById('footer-shop-name').textContent = window.settings.shopName;
-      document.getElementById('footer-text').textContent = window.settings.footerText || '堅持自家精心烘焙 ‧ 展現產區獨特風味風土 ‧ 讓每一口珈琲都是回味無窮的享受';
-      document.getElementById('rc-shop-name').textContent = window.settings.shopName;
-      document.getElementById('rc-footer-line').textContent = `LINE ID: ${window.settings.lineId}`;
+      const bannerText = document.getElementById('banner-text');
+      if (bannerText) bannerText.textContent = `全館滿 ${window.formatNT(window.settings.freeShippingThreshold)} 即享免運優惠`;
+      
+      const shopTitle = document.getElementById('shop-title');
+      if (shopTitle) shopTitle.textContent = window.settings.shopName;
+      
+      const shopSubtitle = document.getElementById('shop-subtitle');
+      if (shopSubtitle && shopSubtitle.childNodes && shopSubtitle.childNodes[0]) {
+        shopSubtitle.childNodes[0].textContent = window.settings.shopSubtitle + ' ';
+      }
+      
+      const footerShopName = document.getElementById('footer-shop-name');
+      if (footerShopName) footerShopName.textContent = window.settings.shopName;
+      
+      const footerText = document.getElementById('footer-text');
+      if (footerText) footerText.textContent = window.settings.footerText || '堅持自家精心烘焙 ‧ 展現產區獨特風味風土 ‧ 讓每一口珈琲都是回味無窮的享受';
+      
+      const rcShopName = document.getElementById('rc-shop-name');
+      if (rcShopName) rcShopName.textContent = window.settings.shopName;
+      
+      const rcFooterLine = document.getElementById('rc-footer-line');
+      if (rcFooterLine) rcFooterLine.textContent = `LINE ID: ${window.settings.lineId}`;
 
       const hintElems = document.querySelectorAll('.admin-hint-text');
       hintElems.forEach(el => {
@@ -1043,51 +911,44 @@
       const siteFavicon = document.getElementById('site-favicon');
 
       if (window.settings.logoUrl && window.settings.logoUrl.trim() !== '') {
-        logoImg.src = window.settings.logoUrl;
-        logoImg.classList.remove('hidden');
-        logoSvg.classList.add('hidden');
+        if (logoImg) {
+          logoImg.src = window.settings.logoUrl;
+          logoImg.classList.remove('hidden');
+        }
+        if (logoSvg) logoSvg.classList.add('hidden');
         if (siteFavicon) siteFavicon.href = window.settings.logoUrl;
       } else {
-        logoImg.classList.add('hidden');
-        logoSvg.classList.remove('hidden');
+        if (logoImg) logoImg.classList.add('hidden');
+        if (logoSvg) logoSvg.classList.remove('hidden');
         if (siteFavicon) {
           siteFavicon.href = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23282522' stroke-width='1.8'%3E%3Cpath d='M18 8h1a4 4 0 0 1 0 8h-1'/%3E%3Cpath d='M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z'/%3E%3Cline x1='6' y1='1' x2='6' y2='4'/%3E%3Cline x1='10' y1='1' x2='10' y2='4'/%3E%3Cline x1='14' y1='1' x2='14' y2='4'/%3E%3C/svg%3E";
         }
       }
 
-      document.getElementById('cfg-shop-name').value = window.settings.shopName;
-      document.getElementById('cfg-shop-subtitle').value = window.settings.shopSubtitle;
-      document.getElementById('cfg-footer-text').value = window.settings.footerText || '';
-      document.getElementById('cfg-show-admin-hint').value = window.settings.showAdminHint !== false ? 'true' : 'false';
-      document.getElementById('cfg-logo-url').value = window.settings.logoUrl || '';
-      updateLogoPreview(window.settings.logoUrl);
-      document.getElementById('cfg-show-photos').value = window.settings.showPhotos ? 'true' : 'false';
-      document.getElementById('cfg-free-shipping').value = window.settings.freeShippingThreshold;
-      updateFreeShippingThresholdPreview(window.settings.freeShippingThreshold);
-      document.getElementById('cfg-bank-name').value = window.settings.bankName;
-      document.getElementById('cfg-bank-holder').value = window.settings.bankHolder;
-      document.getElementById('cfg-bank-account').value = window.settings.bankAccount;
-      document.getElementById('cfg-line-id').value = window.settings.lineId;
-      document.getElementById('cfg-line-pay-notice').value = window.settings.linePayNotice || `請加入 LINE ID: ${window.settings.lineId}\n完成結帳後將訂單圖卡私訊店長即可進行 LINE Pay 轉帳。`;
-      document.getElementById('cfg-admin-pass').value = window.settings.adminPassword;
+      // Safe value assigner to prevent null property assignment errors
+      const safeSetValue = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val !== undefined && val !== null ? val : '';
+      };
 
-      togglePaymentNotice();
-    };
+      safeSetValue('cfg-shop-name', window.settings.shopName);
+      safeSetValue('cfg-shop-subtitle', window.settings.shopSubtitle);
+      safeSetValue('cfg-footer-text', window.settings.footerText || '');
+      safeSetValue('cfg-show-admin-hint', window.settings.showAdminHint !== false ? 'true' : 'false');
+      safeSetValue('cfg-logo-url', window.settings.logoUrl || '');
+      if (typeof window.updateLogoPreview === 'function') window.updateLogoPreview(window.settings.logoUrl);
+      safeSetValue('cfg-show-photos', window.settings.showPhotos ? 'true' : 'false');
+      safeSetValue('cfg-free-shipping', window.settings.freeShippingThreshold);
+      if (typeof window.updateFreeShippingThresholdPreview === 'function') window.updateFreeShippingThresholdPreview(window.settings.freeShippingThreshold);
+      safeSetValue('cfg-bank-name', window.settings.bankName);
+      safeSetValue('cfg-bank-holder', window.settings.bankHolder);
+      safeSetValue('cfg-bank-account', window.settings.bankAccount);
+      safeSetValue('cfg-line-id', window.settings.lineId);
+      safeSetValue('cfg-line-pay-notice', window.settings.linePayNotice || `請加入 LINE ID: ${window.settings.lineId}\n完成結帳後將訂單圖卡私訊店長即可進行 LINE Pay 轉帳。`);
+      safeSetValue('cfg-admin-pass', window.settings.adminPassword);
 
-    window.updateFreeShippingThresholdPreview = function(val) {
-      document.getElementById('cfg-free-shipping-preview').textContent = `目前設定：${window.formatNT(val)}`;
-    };
-
-    window.updateLogoPreview = function(url) {
-      const box = document.getElementById('cfg-logo-preview-box');
-      const img = document.getElementById('cfg-logo-preview-img');
-      if (box && img) {
-        if (url && url.trim() !== '') {
-          img.src = url;
-          box.classList.remove('hidden');
-        } else {
-          box.classList.add('hidden');
-        }
+      if (typeof window.togglePaymentNotice === 'function') {
+        window.togglePaymentNotice();
       }
     };
 
@@ -1147,14 +1008,34 @@
       document.getElementById('active-category-title').textContent = window.activeCategory === '全部' ? '所有商品' : window.activeCategory;
     };
 
+    window.toggleStarFilter = function() {
+      window.onlyStarFilter = !window.onlyStarFilter;
+      const btn = document.getElementById('star-filter-btn');
+      const txt = document.getElementById('star-filter-text');
+      if (window.onlyStarFilter) {
+        btn.classList.add('bg-[#282522]', 'text-[#f5f3ef]', 'border-[#282522]');
+        btn.classList.remove('bg-white/50', 'text-[#8c7759]', 'border-[#8c7759]/40');
+        txt.textContent = '只看店長推薦中 (點擊取消)';
+      } else {
+        btn.classList.remove('bg-[#282522]', 'text-[#f5f3ef]', 'border-[#282522]');
+        btn.classList.add('bg-white/50', 'text-[#8c7759]', 'border-[#8c7759]/40');
+        txt.textContent = '店長推薦品項';
+      }
+      renderProductsGrid();
+    };
+
     window.renderProductsGrid = function() {
       const grid = document.getElementById('products-grid');
       const emptyMsg = document.getElementById('no-products-msg');
       grid.innerHTML = '';
 
-      const filtered = window.activeCategory === '全部' 
+      let filtered = window.activeCategory === '全部' 
         ? window.products 
         : window.products.filter(p => p.category === window.activeCategory);
+
+      if (window.onlyStarFilter) {
+        filtered = filtered.filter(p => p.isStar);
+      }
 
       if (filtered.length === 0) {
         emptyMsg.classList.remove('hidden');
@@ -1182,6 +1063,10 @@
           `;
         }
 
+        const roastBadge = (p.roast && p.roast.trim() !== '' && p.roast !== '無' && p.roast !== '無 / 混豆 (不標示)')
+          ? `<span class="inline-block px-2.5 py-0.5 bg-[#f5f3ef] border border-[#d8d2c8] text-[11px] font-serif text-[#282522] font-semibold">${p.roast}</span>`
+          : '';
+
         const processBadge = (p.process && p.process.trim() !== '') 
           ? `<span class="inline-block px-2.5 py-0.5 bg-[#f5f3ef] border border-[#d8d2c8] text-[11px] font-serif text-[#282522] font-semibold">${p.process}</span>`
           : '';
@@ -1190,19 +1075,23 @@
           ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 bg-[#282522] text-[#f5f3ef] text-[11px] font-serif font-medium tracking-wider shrink-0 shadow-xs"><span class="text-[#af8e28] drop-shadow-sm">★</span> 店長推薦</span>`
           : '';
 
+        const originText = (p.origin && p.origin.trim() !== '')
+          ? `<p class="text-xs text-[#524d46] tracking-widest uppercase font-serif font-bold">${p.origin}</p>`
+          : '';
+
         card.innerHTML = `
           ${imageHTML}
           <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
             <div class="space-y-2.5">
-              <p class="text-xs text-[#524d46] tracking-widest uppercase font-serif font-bold">${p.origin}</p>
+              ${originText}
               
-              <h3 class="font-serif font-bold text-lg sm:text-xl text-[#282522] tracking-wide flex items-center justify-between gap-2">
+              <h3 class="font-serif font-bold text-2xl sm:text-xl text-[#282522] tracking-wide flex items-center justify-between gap-2">
                 <span>${p.name}</span>
                 ${starBadgeNoImage}
               </h3>
 
               <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                <span class="inline-block px-2.5 py-0.5 bg-[#f5f3ef] border border-[#d8d2c8] text-[11px] font-serif text-[#282522] font-semibold">${p.roast}</span>
+                ${roastBadge}
                 ${processBadge}
                 <span class="inline-block px-2.5 py-0.5 bg-[#f5f3ef] border border-[#d8d2c8] text-[11px] font-serif text-[#524d46]">${p.weight}</span>
               </div>
