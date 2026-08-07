@@ -151,10 +151,22 @@
   <main class="flex-1 max-w-6xl w-full mx-auto px-6 py-8">
 
     <!-- Category Tabs Navigation -->
-    <div class="mb-10 overflow-x-auto no-scrollbar py-2 border-b border-[#e4e0d8]">
-      <div id="category-tabs" class="flex items-center justify-start sm:justify-center gap-6 sm:gap-8 min-w-max px-2">
-        <!-- Dynamic Category Tabs JS injected here -->
+    <div class="relative mb-10 border-b border-[#e4e0d8]">
+      <!-- Left scroll indicator triangle -->
+      <button id="cat-scroll-left" onclick="scrollCategoryTabs(-120)" class="absolute left-0 top-0 bottom-0 z-10 pl-1 pr-3 bg-gradient-to-r from-[#f5f3ef] via-[#f5f3ef]/90 to-transparent flex items-center text-[#787268] opacity-0 pointer-events-none transition-opacity duration-300" title="向左滑動">
+        <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><polygon points="16,4 6,12 16,20"/></svg>
+      </button>
+
+      <div id="category-tabs-wrapper" onscroll="updateCategoryScrollIndicators()" class="overflow-x-auto no-scrollbar py-2">
+        <div id="category-tabs" class="flex items-center justify-start sm:justify-center gap-6 sm:gap-8 min-w-max px-6">
+          <!-- Dynamic Category Tabs JS injected here -->
+        </div>
       </div>
+
+      <!-- Right scroll indicator triangle -->
+      <button id="cat-scroll-right" onclick="scrollCategoryTabs(120)" class="absolute right-0 top-0 bottom-0 z-10 pr-1 pl-3 bg-gradient-to-l from-[#f5f3ef] via-[#f5f3ef]/90 to-transparent flex items-center text-[#787268] opacity-0 pointer-events-none transition-opacity duration-300" title="向右滑動">
+        <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><polygon points="8,4 18,12 8,20"/></svg>
+      </button>
     </div>
 
     <!-- Category Section Header -->
@@ -1033,6 +1045,9 @@
       updateCartBadge();
       setupTripleClickTriggers();
       setupMobileKeyboardDismiss();
+      window.addEventListener('resize', () => {
+        if (typeof window.updateCategoryScrollIndicators === 'function') window.updateCategoryScrollIndicators();
+      });
     });
 
     function setupMobileKeyboardDismiss() {
@@ -1228,6 +1243,42 @@
       });
 
       document.getElementById('active-category-title').textContent = window.activeCategory === '全部' ? '所有商品' : window.activeCategory;
+      setTimeout(() => {
+        if (typeof window.updateCategoryScrollIndicators === 'function') window.updateCategoryScrollIndicators();
+      }, 50);
+    };
+
+    window.scrollCategoryTabs = function(delta) {
+      const wrapper = document.getElementById('category-tabs-wrapper');
+      if (wrapper) {
+        wrapper.scrollBy({ left: delta, behavior: 'smooth' });
+      }
+    };
+
+    window.updateCategoryScrollIndicators = function() {
+      const wrapper = document.getElementById('category-tabs-wrapper');
+      const leftBtn = document.getElementById('cat-scroll-left');
+      const rightBtn = document.getElementById('cat-scroll-right');
+      if (!wrapper || !leftBtn || !rightBtn) return;
+
+      const scrollLeft = wrapper.scrollLeft;
+      const maxScroll = wrapper.scrollWidth - wrapper.clientWidth;
+
+      if (scrollLeft > 3) {
+        leftBtn.classList.remove('opacity-0', 'pointer-events-none');
+        leftBtn.classList.add('opacity-100');
+      } else {
+        leftBtn.classList.add('opacity-0', 'pointer-events-none');
+        leftBtn.classList.remove('opacity-100');
+      }
+
+      if (maxScroll - scrollLeft > 3) {
+        rightBtn.classList.remove('opacity-0', 'pointer-events-none');
+        rightBtn.classList.add('opacity-100');
+      } else {
+        rightBtn.classList.add('opacity-0', 'pointer-events-none');
+        rightBtn.classList.remove('opacity-100');
+      }
     };
 
     window.toggleStarFilter = function() {
