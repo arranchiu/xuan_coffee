@@ -152,7 +152,7 @@
           所有商品
         </h2>
       </div>
-      <button id="star-filter-btn" onclick="toggleStarFilter()" class="text-xs font-serif text-[#8c7759] hover:text-[#282522] flex items-center gap-1.5 tracking-wider font-semibold px-3 py-1.5 border border-[#8c7759]/40 hover:border-[#282522] transition-all rounded-full bg-white/50 cursor-pointer shadow-xs">
+      <button id="star-filter-btn" onclick="toggleStarFilter()" class="text-xs font-serif text-[#af8e28] hover:text-[#af8e28] flex items-center gap-1.5 tracking-wider font-semibold px-3 py-1.5 border border-[#8c7759]/40 hover:border-[#af8e28] transition-all rounded-full bg-white/50 cursor-pointer shadow-xs">
         <span class="text-[#af8e28] text-sm drop-shadow-sm">★</span>
         <span id="star-filter-text">店長推薦品項</span>
       </button>
@@ -478,12 +478,159 @@
 
       <!-- TAB 1: Global Settings -->
       <div id="adm-section-global" class="admin-section space-y-8">
-        <form id="global-settings-form" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           
+          <!-- Shop Branding -->
           <div class="bg-white p-6 border border-[#d8d2c8] space-y-4">
             <h3 class="font-serif font-semibold text-base text-[#282522] pb-2 border-b border-[#e4e0d8] tracking-wider">
-              品牌與菜單名稱
+              品牌與抬頭設定
             </h3>
+            <div>
+              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">商店名稱</label>
+              <input type="text" id="cfg-shop-name" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
+            </div>
+            <div>
+              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">商店副標題</label>
+              <input type="text" id="cfg-shop-subtitle" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
+            </div>
+            <div>
+              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">頁尾宣告文字</label>
+              <textarea id="cfg-footer-text" rows="2" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif"></textarea>
+            </div>
+            <div>
+              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">顯示後台觸發提示文字</label>
+              <select id="cfg-show-admin-hint" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
+                <option value="true">顯示 (連續點擊開啟管理選單)</option>
+                <option value="false">隱藏</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Logo Management -->
+          <div class="bg-white p-6 border border-[#d8d2c8] space-y-4">
+            <h3 class="font-serif font-semibold text-base text-[#282522] pb-2 border-b border-[#e4e0d8] tracking-wider">
+              Logo 與圖示管理
+            </h3>
+            <div>
+              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">Logo / Favicon 圖片網址</label>
+              <input type="url" id="cfg-logo-url" placeholder="https://..." class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
+            </div>
+            <div>
+              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">上傳圖片檔案 (自動轉網址)</label>
+              <div class="flex items-center gap-3">
+                <input type="file" id="cfg-logo-file-input" accept="image/*" onchange="handleLogoFileUpload(event)" class="hidden">
+                <button type="button" onclick="document.getElementById('cfg-logo-file-input').click()" class="px-4 py-2 border border-[#282522] text-[#282522] hover:bg-[#ebe7e0] text-xs font-serif transition-colors">
+                  選擇圖片...
+                </button>
+                <span id="cfg-logo-file-name" class="text-xs text-[#787268] font-serif truncate">未選擇檔案</span>
+              </div>
+            </div>
+            <div class="pt-2">
+              <button type="button" onclick="restoreDefaultLogo()" class="text-xs font-serif text-[#8c7759] underline hover:text-[#282522]">
+                恢復預設 Logo 圖示
+              </button>
+            </div>
+          </div>
+
+          <!-- Product Card Photo Option -->
+          <div class="bg-white p-6 border border-[#d8d2c8] space-y-4">
+            <h3 class="font-serif font-semibold text-base text-[#282522] pb-2 border-b border-[#e4e0d8] tracking-wider">
+              商品顯示設定
+            </h3>
+            <div>
+              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">商品卡片是否顯示圖片</label>
+              <select id="cfg-show-photos" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
+                <option value="true">顯示圖片區塊</option>
+                <option value="false">隱藏圖片區塊 (純純文字風格)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Shipping and Threshold -->
+          <div class="bg-white p-6 border border-[#d8d2c8] space-y-4">
+            <h3 class="font-serif font-semibold text-base text-[#282522] pb-2 border-b border-[#e4e0d8] tracking-wider">
+              運費與免運門檻
+            </h3>
+            <div>
+              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">全館滿額免運門檻 (NT$)</label>
+              <input type="number" id="cfg-free-shipping" min="0" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
+            </div>
+            <div class="pt-2 border-t border-[#e4e0d8] space-y-3">
+              <label class="block text-xs text-[#524d46] font-serif font-medium">物流方式管理</label>
+              <div id="admin-shipping-list" class="space-y-2"></div>
+              <div class="flex gap-2 pt-2">
+                <input type="text" id="new-ship-name" placeholder="新物流名稱 (如: 萊爾富)" class="flex-1 px-3 py-1.5 bg-[#f5f3ef] border border-[#d8d2c8] text-xs outline-none">
+                <input type="number" id="new-ship-fee" placeholder="運費" class="w-20 px-3 py-1.5 bg-[#f5f3ef] border border-[#d8d2c8] text-xs outline-none">
+                <button type="button" onclick="handleAddShippingMethod()" class="px-4 py-1.5 bg-[#282522] text-[#f5f3ef] text-xs font-serif hover:bg-black">新增</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bank & Payment Info -->
+          <div class="bg-white p-6 border border-[#d8d2c8] space-y-4">
+            <h3 class="font-serif font-semibold text-base text-[#282522] pb-2 border-b border-[#e4e0d8] tracking-wider">
+              匯款與轉帳帳號設定
+            </h3>
+            <div>
+              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">銀行名稱與代碼</label>
+              <input type="text" id="cfg-bank-name" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
+            </div>
+            <div>
+              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">戶名</label>
+              <input type="text" id="cfg-bank-holder" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
+            </div>
+            <div>
+              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">轉帳帳號</label>
+              <input type="text" id="cfg-bank-account" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
+            </div>
+            <div>
+              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">店長 LINE ID</label>
+              <input type="text" id="cfg-line-id" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
+            </div>
+            <div>
+              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">LINE Pay 說明註記</label>
+              <textarea id="cfg-line-pay-notice" rows="2" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif"></textarea>
+            </div>
+          </div>
+
+          <!-- Password Security -->
+          <div class="bg-white p-6 border border-[#d8d2c8] space-y-4">
+            <h3 class="font-serif font-semibold text-base text-[#282522] pb-2 border-b border-[#e4e0d8] tracking-wider">
+              後台管理密碼
+            </h3>
+            <div>
+              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">變更後台密碼</label>
+              <input type="password" id="cfg-admin-pass" placeholder="請輸入新密碼" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
+            </div>
+            <button type="button" onclick="updateAdminPassword()" class="px-5 py-2 bg-[#282522] hover:bg-black text-[#f5f3ef] text-xs font-serif tracking-widest uppercase transition-all">
+              更新密碼
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- TAB 2: Product Management & Sorting -->
+      <div id="adm-section-products" class="admin-section hidden space-y-8">
+        <form id="product-crud-form" onsubmit="handleProductFormSubmit(event)" class="bg-white p-6 border border-[#d8d2c8] space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-[#e4e0d8]">
+            <h3 id="product-form-title" class="font-serif font-semibold text-base text-[#282522] tracking-wider">
+              新增商品品項
+            </h3>
+            <button type="button" id="cancel-edit-btn" onclick="resetProductForm()" class="text-xs text-[#787268] underline hover:text-[#282522] hidden font-serif">
+              取消編輯
+            </button>
+          </div>
+
+          <input type="hidden" id="prod-edit-id" value="">
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">菜單分類 <span class="text-red-600">*</span></label>
+              <select id="prod-category" required class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
+              </select>
+            </div>
+
             <div>
               <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">詳細產地 (選填)</label>
               <input type="text" id="prod-origin" placeholder="衣索比亞 耶加雪菲" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none">
@@ -527,25 +674,25 @@
               <input type="text" id="prod-notes" placeholder="藍莓、花香、佛手柑、水蜜桃" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none">
             </div>
 
-            <div class="sm:col-span-2">
+            <div class="sm:col-span-2 md:col-span-3">
               <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">商品圖片網址</label>
               <input type="url" id="prod-image" placeholder="https://images.unsplash.com/photo-..." class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none font-serif">
             </div>
 
-            <div class="flex items-center pt-5">
+            <div class="flex items-center pt-2">
               <label class="flex items-center gap-2 cursor-pointer text-xs font-serif text-[#8c7759]">
                 <input type="checkbox" id="prod-star" class="w-4 h-4 accent-[#282522]">
                 <span class="font-bold">★ 店長推薦品項</span>
               </label>
             </div>
+          </div>
 
-            <div class="sm:col-span-2 md:col-span-3 flex justify-end gap-2 pt-2">
-              <button type="submit" id="save-prod-btn" class="w-full sm:w-auto px-6 py-2.5 bg-[#282522] hover:bg-black text-[#f5f3ef] text-xs font-serif tracking-widest transition-all uppercase">
-                新增商品
-              </button>
-            </div>
-          </form>
-        </div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="submit" id="save-prod-btn" class="w-full sm:w-auto px-6 py-2.5 bg-[#282522] hover:bg-black text-[#f5f3ef] text-xs font-serif tracking-widest transition-all uppercase">
+              新增商品
+            </button>
+          </div>
+        </form>
 
         <div class="bg-white p-6 border border-[#d8d2c8] space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#e4e0d8] pb-3">
@@ -1014,11 +1161,11 @@
       const txt = document.getElementById('star-filter-text');
       if (window.onlyStarFilter) {
         btn.classList.add('bg-[#282522]', 'text-[#f5f3ef]', 'border-[#282522]');
-        btn.classList.remove('bg-white/50', 'text-[#8c7759]', 'border-[#8c7759]/40');
+        btn.classList.remove('bg-white/50', 'text-[#af8e28]', 'border-[#8c7759]/40');
         txt.textContent = '只看店長推薦中 (點擊取消)';
       } else {
         btn.classList.remove('bg-[#282522]', 'text-[#f5f3ef]', 'border-[#282522]');
-        btn.classList.add('bg-white/50', 'text-[#8c7759]', 'border-[#8c7759]/40');
+        btn.classList.add('bg-white/50', 'text-[#af8e28]', 'border-[#8c7759]/40');
         txt.textContent = '店長推薦品項';
       }
       renderProductsGrid();
