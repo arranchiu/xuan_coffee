@@ -994,7 +994,43 @@
       renderProductsGrid();
       updateCartBadge();
       setupTripleClickTriggers();
+      setupMobileKeyboardDismiss();
     });
+
+    function setupMobileKeyboardDismiss() {
+      // 點擊購物車或表單任意空白非輸入區域時，自動收合手機軟體鍵盤
+      const touchContainers = ['cart-drawer', 'admin-panel', 'checkout-form', 'receipt-modal'];
+      touchContainers.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          const dismissKeyboard = (e) => {
+            if (!['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON', 'A'].includes(e.target.tagName)) {
+              if (document.activeElement && typeof document.activeElement.blur === 'function') {
+                document.activeElement.blur();
+              }
+            }
+          };
+          el.addEventListener('touchstart', dismissKeyboard, { passive: true });
+          el.addEventListener('click', dismissKeyboard);
+        }
+      });
+
+      // 監聽單行輸入框按下 Enter / 完成時自動收合鍵盤，並修正手機瀏覽器畫面視埠位移
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.target && e.target.tagName === 'INPUT') {
+          e.target.blur();
+        }
+      });
+
+      // 離開輸入欄位 (blur) 時，平滑還原手機 Viewport 視角與全頁顯示
+      document.addEventListener('focusout', (e) => {
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
+          setTimeout(() => {
+            window.scrollTo({ top: window.scrollY, behavior: 'smooth' });
+          }, 100);
+        }
+      });
+    }
 
     window.renderShippingSelectOptions = function() {
       const select = document.getElementById('cust-shipping');
