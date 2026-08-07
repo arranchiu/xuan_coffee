@@ -2017,6 +2017,22 @@
           }
 
           const dataUrl = canvas.toDataURL('image/png');
+          const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 640;
+
+          // 網頁版 (Desktop)：直接觸發 PNG 檔案下載，不跳出分享選單
+          if (!isMobile) {
+            const link = document.createElement('a');
+            link.download = fileName;
+            link.href = dataUrl;
+            link.click();
+
+            btn.disabled = false;
+            btn.textContent = '下載訂單分享給店長';
+            showToast('訂單圖卡已成功下載！');
+            return;
+          }
+
+          // 手機版 (Mobile)：優先觸發原生分享選單或長按圖卡彈窗
           const file = new File([blob], fileName, { type: 'image/png' });
 
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
