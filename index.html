@@ -443,9 +443,9 @@
         <p class="text-xs text-[#787268]">請輸入後台管理密碼</p>
       </div>
 
-      <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+      <form id="admin-login-form" action="javascript:void(0);" onsubmit="handleAdminLogin(event)" class="space-y-4">
         <div>
-          <input type="password" id="admin-password-input" placeholder="請輸入密碼" required class="w-full px-4 py-3 bg-white border border-[#d8d2c8] text-[#282522] text-center text-lg focus:outline-none focus:border-[#282522] tracking-widest">
+          <input type="password" id="admin-password-input" placeholder="請輸入密碼" required enterkeyhint="go" autocomplete="current-password" class="w-full px-4 py-3 bg-white border border-[#d8d2c8] text-[#282522] text-center text-lg focus:outline-none focus:border-[#282522] tracking-widest">
         </div>
         <div class="flex gap-3">
           <button type="button" onclick="closeAdminAuthModal()" class="w-1/2 py-2.5 border border-[#282522] text-[#282522] hover:bg-[#ebe7e0] text-xs tracking-widest font-serif transition-colors uppercase">
@@ -1915,16 +1915,23 @@
     }
 
     window.openAdminAuthModal = function() {
-      document.getElementById('admin-password-input').value = '';
+      const passInput = document.getElementById('admin-password-input');
+      passInput.value = '';
       document.getElementById('admin-auth-modal').classList.remove('hidden');
+      setTimeout(() => {
+        passInput.focus();
+      }, 100);
     };
 
     window.closeAdminAuthModal = function() {
       document.getElementById('admin-auth-modal').classList.add('hidden');
+      if (document.activeElement && typeof document.activeElement.blur === 'function') {
+        document.activeElement.blur();
+      }
     };
 
     window.handleAdminLogin = function(e) {
-      e.preventDefault();
+      if (e) e.preventDefault();
       const inputPass = document.getElementById('admin-password-input').value;
       if (inputPass === window.settings.adminPassword) {
         closeAdminAuthModal();
@@ -1932,6 +1939,7 @@
         showToast('後台登入成功');
       } else {
         showToast('密碼錯誤！請重試');
+        document.getElementById('admin-password-input').focus();
       }
     };
 
