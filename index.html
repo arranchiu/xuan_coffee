@@ -2,7 +2,7 @@
 <html lang="zh-TW" class="h-full bg-[#f5f3ef]">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>XUAN COFFEE 自家烘焙珈琲豆選</title>
 
   <!-- Dynamic Browser Favicon -->
@@ -76,6 +76,19 @@
     }
     html {
       scroll-behavior: smooth;
+    }
+
+    /* 防止 iOS / Android 點擊輸入框時自動拉近放大畫面 (低於 16px 會觸發 Safari 自動縮放) */
+    @media (max-width: 640px) {
+      input[type="text"],
+      input[type="tel"],
+      input[type="number"],
+      input[type="password"],
+      input[type="url"],
+      select,
+      textarea {
+        font-size: 16px !important;
+      }
     }
   </style>
 </head>
@@ -276,7 +289,8 @@
       </form>
     </div>
 
-    <div class="p-6 bg-white border-t border-[#e4e0d8] space-y-4">
+    <!-- 購物車金額總結與結帳按鈕 (固定最下方) -->
+    <div class="p-4 sm:p-6 bg-white border-t border-[#e4e0d8] space-y-3 sm:space-y-4 shrink-0 sticky bottom-0 z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
       <div class="space-y-1.5 text-xs text-[#524d46] font-serif">
         <div class="flex justify-between items-center">
           <span>商品小計</span>
@@ -1026,8 +1040,9 @@
       document.addEventListener('focusout', (e) => {
         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
           setTimeout(() => {
-            window.scrollTo({ top: window.scrollY, behavior: 'smooth' });
-          }, 100);
+            window.scrollTo(0, 0);
+            document.body.scrollTop = 0;
+          }, 50);
         }
       });
     }
