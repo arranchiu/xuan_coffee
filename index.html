@@ -438,7 +438,7 @@
         <button id="download-png-btn" onclick="downloadReceiptPNG()" class="w-full sm:w-1/2 bg-[#282522] hover:bg-black text-[#f5f3ef] font-medium py-3 px-4 tracking-widest text-xs uppercase transition-all shadow-sm">
           下載訂單分享給店長
         </button>
-        <button onclick="attemptCloseReceiptModal()" class="w-full sm:w-1/2 border border-[#282522] text-[#282522] hover:bg-[#ebe7e0] font-serif font-medium py-3 px-4 tracking-widest text-xs uppercase transition-all">
+        <button onclick="forceCloseReceiptModal()" class="w-full sm:w-1/2 border border-[#282522] text-[#282522] hover:bg-[#ebe7e0] font-serif font-medium py-3 px-4 tracking-widest text-xs uppercase transition-all">
           返回繼續購物
         </button>
       </div>
@@ -450,7 +450,7 @@
   <div id="receipt-close-confirm-modal" class="fixed inset-0 z-[60] bg-[#282522]/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
     <div class="bg-[#f5f3ef] text-[#282522] max-w-sm w-full p-6 border border-[#d8d2c8] shadow-2xl space-y-4 font-serif text-center">
       <div class="space-y-1">
-        <span class="text-xs text-[#8c7759] font-bold tracking-widest uppercase block">⚠️ 尚未下載訂單</span>
+        <span class="text-xs text-[#8c7759] font-bold tracking-widest uppercase block">尚未下載訂單</span>
         <h3 class="text-base font-bold text-[#282522]">確定不下載圖卡直接關閉嗎？</h3>
       </div>
       <p class="text-xs text-[#524d46] leading-relaxed">
@@ -458,7 +458,7 @@
       </p>
       <div class="flex flex-col gap-2 pt-2">
         <button type="button" onclick="confirmDownloadAndClose()" class="w-full py-2.5 bg-[#282522] hover:bg-black text-[#f5f3ef] text-xs tracking-widest uppercase font-medium shadow-sm">
-          📥 條列下單並下載圖卡
+          📥 下載圖卡並完成訂購
         </button>
         <button type="button" onclick="forceCloseReceiptModal()" class="w-full py-2.5 border border-[#d8d2c8] text-[#787268] hover:text-[#282522] hover:bg-[#ebe7e0] text-xs tracking-widest uppercase transition-colors">
           直接關閉並返回購物
@@ -1995,6 +1995,7 @@
 
       window.orders.unshift(newOrder);
       saveToCloud();
+      clearCart();
 
       hasDownloadedReceipt = false;
       populateReceiptCard(newOrder);
