@@ -1203,7 +1203,7 @@
       shopSubtitle: '自家烘焙珈琲豆選',
       footerText: '堅持自家精心烘焙 ‧ 展現產區獨特風味風土 ‧ 讓每一口珈琲都是回味無窮的享受',
       logoUrl: '',
-      showPhotos: true,
+      showPhotos: false,
       showAdminHint: false,
       freeShippingThreshold: 2000,
       bankName: '玉山銀行 808',
@@ -1214,14 +1214,20 @@
       adminPassword: '0806'
     };
 
+    // 全域統一防護函數：嚴格校正 showPhotos 為布林值，100% 避免字串 "false" 誤判
+    window.getShowPhotos = function() {
+      if (!window.settings) return false;
+      return window.settings.showPhotos === true || window.settings.showPhotos === 'true';
+    };
+
     window.products = JSON.parse(localStorage.getItem('xc_products')) || DEFAULT_PRODUCTS;
     window.categories = JSON.parse(localStorage.getItem('xc_categories')) || DEFAULT_CATEGORIES;
     window.shippingMethods = JSON.parse(localStorage.getItem('xc_shipping_methods')) || DEFAULT_SHIPPING_METHODS;
     window.settings = JSON.parse(localStorage.getItem('xc_settings')) || DEFAULT_SETTINGS;
     
-    // 嚴格校正 showPhotos 為布林值，防止字串 "false" 被誤判為 true
+    // 嚴格校正 showPhotos 為布林值
     if (window.settings) {
-      window.settings.showPhotos = (window.settings.showPhotos === true || window.settings.showPhotos === 'true');
+      window.settings.showPhotos = window.getShowPhotos();
     }
 
     window.orders = JSON.parse(localStorage.getItem('xc_orders')) || [];
@@ -1254,7 +1260,12 @@
             if (data.products) window.products = data.products;
             if (data.categories) window.categories = data.categories;
             if (data.shippingMethods) window.shippingMethods = data.shippingMethods;
-            if (data.settings) window.settings = data.settings;
+            if (data.settings) {
+              window.settings = data.settings;
+              window.settings.showPhotos = window.getShowPhotos();
+              // 即時寫入快取，確保下次重開頁面時 Frame 0 直接是純文字模式
+              localStorage.setItem('xc_settings', JSON.stringify(window.settings));
+            }
             if (data.orders) window.orders = data.orders;
             
             applySettingsToUI();
@@ -1387,7 +1398,7 @@
 
     window.applySettingsToUI = function() {
       // 確保全站設定中的 showPhotos 始終為嚴格布林值
-      window.settings.showPhotos = (window.settings.showPhotos === true || window.settings.showPhotos === 'true');
+      window.settings.showPhotos = window.getShowPhotos();
 
       const bannerText = document.getElementById('banner-text');
       if (bannerText) bannerText.textContent = `全館滿 ${window.formatNT(window.settings.freeShippingThreshold)} 即享免運優惠`;
@@ -1593,8 +1604,8 @@
         if (emptyMsg) emptyMsg.classList.add('hidden');
       }
 
-      // 嚴格判斷是否顯示圖片（絕對避免字串 "false" 誤判）
-      const showImage = (window.settings.showPhotos === true || window.settings.showPhotos === 'true');
+      // 使用全域 getShowPhotos() 確保 100% 正確判斷
+      const showImage = window.getShowPhotos();
 
       filtered.forEach(p => {
         const card = document.createElement('div');
