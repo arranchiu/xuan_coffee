@@ -153,7 +153,7 @@
     </div>
   </header>
 
-  <!-- Always Floating Sticky Cart Button -->
+  <!-- Floating Cart Button -->
   <button id="floating-cart-btn" onclick="openCart()" class="fixed bottom-6 right-6 z-30 bg-[#282522] hover:bg-black text-[#f5f3ef] p-4 rounded-full shadow-2xl flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 group" title="檢視購物車">
     <svg class="w-6 h-6 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="1.8">
       <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.25 10.5a.75.75 0 100-1.5.75.75 0 000 1.5zm7.5 0a.75.75 0 100-1.5.75.75 0 000 1.5z" />
@@ -292,12 +292,12 @@
           <label class="block text-xs font-serif text-[#282522] mb-1 font-semibold">取貨門市 / 配送地址 <span class="text-red-600">*</span></label>
           <div class="space-y-1.5">
             <div class="flex gap-2">
-              <input type="text" id="cust-address" required placeholder="請填寫超商門市名稱與店號，或宅配完整地址" class="flex-1 px-3 py-2 text-xs bg-white border border-[#d8d2c8] focus:border-[#282522] outline-none transition-all">
+              <input type="text" id="cust-address" required placeholder="請選擇門市或填寫宅配完整地址" class="flex-1 px-3 py-2 text-xs bg-white border border-[#d8d2c8] focus:border-[#282522] outline-none transition-all">
               <button type="button" onclick="openStoreLocatorModal()" class="px-3 py-2 bg-[#8c7759] hover:bg-[#282522] text-white text-xs font-serif tracking-wider shrink-0 transition-colors flex items-center gap-1">
-                <span>🏪</span> <span>尋找門市</span>
+                <span>🏪</span> <span>選取門市</span>
               </button>
             </div>
-            <p class="text-[10px] text-[#787268]">選 7-11 或全家取貨時，點選「尋找門市」即可快速帶入選取的門市！</p>
+            <p class="text-[10px] text-[#787268]">選擇 7-11 或全家門市，點右側按鈕即可快速點選帶入！</p>
           </div>
         </div>
 
@@ -451,72 +451,76 @@
     </div>
   </div>
 
-  <!-- Store Locator Assistant Modal (Root Level Modal) -->
+  <!-- Built-In 7-11 & FamilyMart Store Locator Assistant Modal -->
   <div id="store-locator-modal" class="fixed inset-0 z-50 bg-[#282522]/85 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 hidden overflow-y-auto">
-    <div class="bg-[#f5f3ef] text-[#282522] max-w-md w-full p-5 sm:p-6 border border-[#d8d2c8] shadow-2xl space-y-5 font-serif my-auto">
+    <div class="bg-[#f5f3ef] text-[#282522] max-w-lg w-full p-5 sm:p-6 border border-[#d8d2c8] shadow-2xl space-y-4 font-serif my-auto rounded-xs">
       <div class="flex items-center justify-between pb-3 border-b border-[#e4e0d8]">
         <div>
-          <span class="text-[10px] uppercase text-[#787268] tracking-widest block">Store Locator</span>
-          <h3 class="font-bold text-base sm:text-lg text-[#282522]">超商取貨門市選擇助手</h3>
+          <span class="text-[10px] uppercase text-[#787268] tracking-widest block">Store Selector</span>
+          <h3 class="font-bold text-base sm:text-lg text-[#282522]">7-11 / 全家 門市選擇助手</h3>
         </div>
         <button type="button" onclick="closeStoreLocatorModal()" class="text-2xl font-light text-[#787268] hover:text-[#282522] p-1 leading-none">×</button>
       </div>
 
-      <p class="text-xs text-[#524d46] leading-relaxed">
-        請選擇超商種類，點擊前往地圖查門市，將查到的「<span class="font-bold text-[#282522]">門市名稱與店號</span>」填入下方即可<span class="font-bold text-[#8c7759]">直接自動帶入結帳表單</span>：
-      </p>
-
-      <!-- Store Maps Links -->
-      <div class="grid grid-cols-2 gap-2.5">
-        <a href="https://emap.pcsc.com.tw/" target="_blank" rel="noopener noreferrer" onclick="selectStoreBrand('7-11')" class="p-2.5 bg-white border border-[#d8d2c8] hover:border-[#006039] text-center transition-all flex flex-col items-center justify-center gap-1 shadow-xs group rounded-xs">
-          <div class="flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-[#006039]"></span>
-            <span class="font-bold text-xs text-[#006039]">7-11 統一超商</span>
-          </div>
-          <span class="text-[10px] text-[#787268] group-hover:underline">開啟官方地圖 ↗</span>
-        </a>
-        <a href="https://www.family.com.tw/Marketing/Map" target="_blank" rel="noopener noreferrer" onclick="selectStoreBrand('全家')" class="p-2.5 bg-white border border-[#d8d2c8] hover:border-[#004f9f] text-center transition-all flex flex-col items-center justify-center gap-1 shadow-xs group rounded-xs">
-          <div class="flex items-center gap-1.5">
+      <!-- 1. 超商體系分頁 (僅保留 7-11 與 全家) -->
+      <div>
+        <label class="block text-xs font-semibold mb-1.5 text-[#282522]">1. 請選擇取貨超商：</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" id="btn-brand-711" onclick="selectStoreBrand('7-11')" class="py-2.5 px-3 border border-[#006039] bg-[#006039] text-white text-xs font-bold transition-all text-center rounded-xs flex items-center justify-center gap-2 shadow-xs">
+            <span class="w-2.5 h-2.5 rounded-full bg-white"></span>
+            <span>7-11 統一超商</span>
+          </button>
+          <button type="button" id="btn-brand-family" onclick="selectStoreBrand('全家')" class="py-2.5 px-3 border border-[#d8d2c8] bg-white text-[#004f9f] hover:bg-[#ebe7e0] text-xs font-bold transition-all text-center rounded-xs flex items-center justify-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-[#004f9f]"></span>
-            <span class="font-bold text-xs text-[#004f9f]">全家便利商店</span>
-          </div>
-          <span class="text-[10px] text-[#787268] group-hover:underline">開啟官方地圖 ↗</span>
-        </a>
+            <span>全家便利商店</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Quick Store Filler Form -->
-      <div class="pt-2 border-t border-[#e4e0d8] space-y-3">
-        <div>
-          <label class="block text-xs font-semibold mb-1 text-[#282522]">1. 選擇取貨超商系統：</label>
-          <div class="grid grid-cols-4 gap-1.5">
-            <button type="button" id="btn-brand-711" onclick="selectStoreBrand('7-11')" class="py-2 px-1.5 border border-[#282522] bg-[#282522] text-white text-xs font-medium transition-colors text-center rounded-xs">
-              7-11
-            </button>
-            <button type="button" id="btn-brand-family" onclick="selectStoreBrand('全家')" class="py-2 px-1.5 border border-[#d8d2c8] bg-white text-[#282522] hover:bg-[#ebe7e0] text-xs font-medium transition-colors text-center rounded-xs">
-              全家
-            </button>
-            <button type="button" id="btn-brand-[#btn-brand-hilife]" onclick="selectStoreBrand('萊爾富')" class="py-2 px-1.5 border border-[#d8d2c8] bg-white text-[#282522] hover:bg-[#ebe7e0] text-xs font-medium transition-colors text-center rounded-xs">
-              萊爾富
-            </button>
-            <button type="button" id="btn-brand-ok" onclick="selectStoreBrand('OK')" class="py-2 px-1.5 border border-[#d8d2c8] bg-white text-[#282522] hover:bg-[#ebe7e0] text-xs font-medium transition-colors text-center rounded-xs">
-              OK
-            </button>
-          </div>
+      <!-- 2. 縣市與鄉鎮市區選擇 -->
+      <div class="space-y-2">
+        <label class="block text-xs font-semibold text-[#282522]">2. 選擇地區或關鍵字搜尋：</label>
+        <div class="grid grid-cols-2 gap-2">
+          <select id="store-select-county" onchange="onCountyChange()" class="w-full px-3 py-2 bg-white border border-[#d8d2c8] text-xs text-[#282522] focus:border-[#282522] outline-none font-serif">
+            <!-- Dynamic counties populated by JS -->
+          </select>
+          <select id="store-select-district" onchange="onDistrictChange()" class="w-full px-3 py-2 bg-white border border-[#d8d2c8] text-xs text-[#282522] focus:border-[#282522] outline-none font-serif">
+            <!-- Dynamic districts populated by JS -->
+          </select>
         </div>
 
+        <!-- 關鍵字過濾搜尋 -->
         <div>
-          <label class="block text-xs font-semibold mb-1 text-[#282522]">2. 輸入門市名稱與店號：</label>
-          <input type="text" id="quick-store-name" placeholder="例如：欣漢華門市 (店號 123456)" class="w-full px-3 py-2 text-xs bg-white border border-[#d8d2c8] focus:border-[#282522] outline-none rounded-xs">
+          <input type="text" id="store-keyword-search" oninput="filterStoresByKeyword()" placeholder="輸入門市名稱、店號或路名 (例如：欣漢華、123456)" class="w-full px-3 py-2 text-xs bg-white border border-[#d8d2c8] focus:border-[#282522] outline-none rounded-xs">
         </div>
+      </div>
 
-        <div class="flex gap-2 pt-1">
-          <button type="button" onclick="closeStoreLocatorModal()" class="w-1/3 py-2.5 border border-[#282522] text-[#282522] hover:bg-[#ebe7e0] text-xs uppercase transition-colors rounded-xs">
-            取消
-          </button>
-          <button type="button" onclick="applySelectedStore()" class="w-2/3 py-2.5 bg-[#282522] hover:bg-black text-[#f5f3ef] text-xs uppercase font-medium transition-all shadow-sm rounded-xs flex items-center justify-center gap-1">
-            <span>✨</span> <span>確認直接帶入表單</span>
-          </button>
+      <!-- 3. 門市選單清單 (動態渲染) -->
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <label class="block text-xs font-semibold text-[#282522]">3. 選擇門市品項：</label>
+          <span id="store-count-badge" class="text-[10px] text-[#787268]">共 0 間門市</span>
         </div>
+        <select id="store-select-list" size="5" onchange="onStoreSelectChanged()" class="w-full px-3 py-2 text-xs bg-white border border-[#d8d2c8] focus:border-[#282522] outline-none font-serif h-36 rounded-xs leading-relaxed">
+          <!-- Dynamic store list items injected here -->
+        </select>
+      </div>
+
+      <!-- 已選取門市預覽與一鍵帶入 -->
+      <div class="p-3 bg-[#ebe7e0] border border-[#d8d2c8] space-y-1.5 text-xs rounded-xs">
+        <div class="text-[#524d46] font-medium">已選取門市與詳細資訊：</div>
+        <div id="selected-store-preview" class="font-bold text-[#282522] text-xs leading-relaxed break-all">
+          請選擇上方選單中的門市...
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-1">
+        <button type="button" onclick="closeStoreLocatorModal()" class="w-1/3 py-2.5 border border-[#282522] text-[#282522] hover:bg-[#ebe7e0] text-xs uppercase transition-colors rounded-xs">
+          取消
+        </button>
+        <button type="button" onclick="applySelectedStoreFromList()" class="w-2/3 py-2.5 bg-[#282522] hover:bg-black text-[#f5f3ef] text-xs uppercase font-medium transition-all shadow-sm rounded-xs flex items-center justify-center gap-1">
+          <span>✨</span> <span>確認直接帶入表單</span>
+        </button>
       </div>
     </div>
   </div>
@@ -680,7 +684,7 @@
               <label class="block text-xs text-[#524d46] font-serif font-medium">物流方式管理</label>
               <div id="admin-shipping-list" class="space-y-2"></div>
               <div class="flex flex-col sm:flex-row gap-2 pt-2">
-                <input type="text" id="new-ship-name" placeholder="新物流名稱 (如: 萊爾富)" class="flex-1 px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-xs sm:text-sm outline-none font-serif">
+                <input type="text" id="new-ship-name" placeholder="新物流名稱 (如: 宅急便)" class="flex-1 px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-xs sm:text-sm outline-none font-serif">
                 <input type="number" id="new-ship-fee" placeholder="運費" class="w-full sm:w-28 px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-xs sm:text-sm outline-none font-serif">
                 <button type="button" onclick="handleAddShippingMethod()" class="px-5 py-2 bg-[#282522] text-[#f5f3ef] text-xs sm:text-sm font-serif hover:bg-black font-medium tracking-wider uppercase">新增</button>
               </div>
@@ -1217,6 +1221,88 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
+    // ==========================================
+    // 內建台灣 7-11 與全家主要地區門市資料庫 (專屬兩大超商體系)
+    // ==========================================
+    const TW_COUNTIES_DATA = {
+      '台北市': {
+        '中正區': [
+          { brand: '7-11', name: '漢華門市', code: '158921', addr: '台北市中正區漢口街一段85號' },
+          { brand: '7-11', name: '台醫門市', code: '112832', addr: '台北市中正區中山南路7號B1' },
+          { brand: '7-11', name: '北車門市', code: '981273', addr: '台北市中正區忠孝西路一段49號B1' },
+          { brand: '全家', name: '中正漢口店', code: '018239', addr: '台北市中正區漢口街一段68號' },
+          { brand: '全家', name: '台鐵北店', code: '015823', addr: '台北市中正區北平西路3號2樓' }
+        ],
+        '大安區': [
+          { brand: '7-11', name: '忠孝門市', code: '128392', addr: '台北市大安區忠孝東路四段205號' },
+          { brand: '7-11', name: '敦南門市', code: '139281', addr: '台北市大安區敦化南路一段187巷' },
+          { brand: '全家', name: '明曜店', code: '019823', addr: '台北市大安區忠孝東路四段216巷' },
+          { brand: '全家', name: '大安富陽店', code: '017234', addr: '台北市大安區富陽街55號' }
+        ],
+        '信義區': [
+          { brand: '7-11', name: '市府門市', code: '182391', addr: '台北市信義區忠孝東路五段15號' },
+          { brand: '7-11', name: '松捷門市', code: '192381', addr: '台北市信義區松高路11號' },
+          { brand: '全家', name: '信義威秀店', code: '012938', addr: '台北市信義區松壽路20號' },
+          { brand: '全家', name: '松文店', code: '018374', addr: '台北市信義區松隆路300號' }
+        ],
+        '中山區': [
+          { brand: '7-11', name: '南京門市', code: '118239', addr: '台北市中山區南京東路二段88號' },
+          { brand: '7-11', name: '林森門市', code: '128394', addr: '台北市中山區林森北路105號' },
+          { brand: '全家', name: '中山南京店', code: '017382', addr: '台北市中山區南京西路12號' }
+        ]
+      },
+      '新北市': {
+        '板橋區': [
+          { brand: '7-11', name: '欣漢華門市', code: '198273', addr: '新北市板橋區中山路一段1號' },
+          { brand: '7-11', name: '板橋車站門市', code: '183742', addr: '新北市板橋區縣民大道二段7號' },
+          { brand: '7-11', name: '府中門市', code: '129384', addr: '新北市板橋區府中路29號' },
+          { brand: '全家', name: '板橋新縣府店', code: '019283', addr: '新北市板橋區縣民大道二段20號' },
+          { brand: '全家', name: '板橋府中店', code: '018392', addr: '新北市板橋區縣民大道一段193號' }
+        ],
+        '新莊區': [
+          { brand: '7-11', name: '新莊輔大門市', code: '172839', addr: '新北市新莊區中正路510號' },
+          { brand: '全家', name: '新莊中正店', code: '016253', addr: '新北市新莊區中正路288號' }
+        ],
+        '中和區': [
+          { brand: '7-11', name: '中和門市', code: '182736', addr: '新北市中和區中山路二段120號' },
+          { brand: '全家', name: '中和景安店', code: '019284', addr: '新北市中和區景安路140號' }
+        ]
+      },
+      '桃園市': {
+        '桃園區': [
+          { brand: '7-11', name: '桃園站前門市', code: '218392', addr: '桃園市桃園區中正路1號' },
+          { brand: '全家', name: '桃園車站店', code: '028392', addr: '桃園市桃園區中正路19號' }
+        ],
+        '中壢區': [
+          { brand: '7-11', name: '中壢門市', code: '229384', addr: '桃園市中壢區中正路88號' },
+          { brand: '全家', name: '中壢站前店', code: '029384', addr: '桃園市中壢區中正路100號' }
+        ]
+      },
+      '台中市': {
+        '西屯區': [
+          { brand: '7-11', name: '逢甲門市', code: '312839', addr: '台中市西屯區文華路100號' },
+          { brand: '7-11', name: '新光門市', code: '328391', addr: '台中市西屯區台灣大道三段301號' },
+          { brand: '全家', name: '台中逢甲店', code: '038291', addr: '台中市西屯區福星路420號' }
+        ],
+        '北區': [
+          { brand: '7-11', name: '一中門市', code: '319283', addr: '台中市北區一中街55號' },
+          { brand: '全家', name: '台中科大店', code: '037281', addr: '台中市北區三民路三段129號' }
+        ]
+      },
+      '台南市': {
+        '中西區': [
+          { brand: '7-11', name: '赤崁門市', code: '418293', addr: '台南市中西區民族路二段200號' },
+          { brand: '全家', name: '台南赤崁店', code: '048293', addr: '台南市中西區忠義路二段180號' }
+        ]
+      },
+      '高雄市': {
+        '苓雅區': [
+          { brand: '7-11', name: '高雄三多門市', code: '518293', addr: '高雄市苓雅區三多三路210號' },
+          { brand: '全家', name: '高雄三多店', code: '058293', addr: '高雄市苓雅區三多三路220號' }
+        ]
+      }
+    };
+
     window.formatNT = function(amount) {
       const num = Number(amount) || 0;
       return `NT$ ${num.toLocaleString('zh-TW')}`;
@@ -1273,13 +1359,13 @@
 
     const DEFAULT_CATEGORIES = ['全部', '衣索比亞', '中南美洲', '亞洲產區', '特調配方豆'];
 
+    // 專屬物流設定：僅保留 7-11 與 全家 (及宅配選項)
     const DEFAULT_SHIPPING_METHODS = [
       { id: 's1', name: '7-11 超商取貨', fee: 60 },
       { id: 's2', name: '全家 超商取貨', fee: 60 },
       { id: 's3', name: '宅配 到府', fee: 100 }
     ];
 
-    // FIX ISSUE 1: Default showPhotos to false to avoid photo glitch/flicker on incognito first-load!
     const DEFAULT_SETTINGS = {
       shopName: 'XUAN COFFEE',
       shopSubtitle: '自家烘焙珈琲豆選',
@@ -1305,7 +1391,10 @@
     window.activeCategory = '全部';
     window.onlyStarFilter = false;
     window.hasUnsavedChanges = false;
+    
+    // 超商選單控制變數
     window.selectedStoreBrand = '7-11';
+    window.selectedStoreObject = null;
 
     let tripleClickCounter = 0;
     let tripleClickTimer = null;
@@ -1439,6 +1528,181 @@
         });
       }
     }
+
+    // ==========================================
+    // 內建門市選擇器邏輯 (支援 7-11 與 全家)
+    // ==========================================
+    window.openStoreLocatorModal = function() {
+      initCountyDropdown();
+      selectStoreBrand('7-11');
+      document.getElementById('store-keyword-search').value = '';
+      document.getElementById('store-locator-modal').classList.remove('hidden');
+    };
+
+    window.closeStoreLocatorModal = function() {
+      document.getElementById('store-locator-modal').classList.add('hidden');
+    };
+
+    window.selectStoreBrand = function(brand) {
+      window.selectedStoreBrand = brand;
+      const btn711 = document.getElementById('btn-brand-711');
+      const btnFamily = document.getElementById('btn-brand-family');
+
+      if (brand === '7-11') {
+        btn711.className = "py-2.5 px-3 border border-[#006039] bg-[#006039] text-white text-xs font-bold transition-all text-center rounded-xs flex items-center justify-center gap-2 shadow-xs";
+        btnFamily.className = "py-2.5 px-3 border border-[#d8d2c8] bg-white text-[#004f9f] hover:bg-[#ebe7e0] text-xs font-bold transition-all text-center rounded-xs flex items-center justify-center gap-2";
+      } else {
+        btnFamily.className = "py-2.5 px-3 border border-[#004f9f] bg-[#004f9f] text-white text-xs font-bold transition-all text-center rounded-xs flex items-center justify-center gap-2 shadow-xs";
+        btn711.className = "py-2.5 px-3 border border-[#d8d2c8] bg-white text-[#006039] hover:bg-[#ebe7e0] text-xs font-bold transition-all text-center rounded-xs flex items-center justify-center gap-2";
+      }
+
+      updateStoreOptionsList();
+    };
+
+    function initCountyDropdown() {
+      const countySelect = document.getElementById('store-select-county');
+      countySelect.innerHTML = '';
+      Object.keys(TW_COUNTIES_DATA).forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        countySelect.appendChild(opt);
+      });
+      initDistrictDropdown();
+    }
+
+    window.onCountyChange = function() {
+      initDistrictDropdown();
+    };
+
+    function initDistrictDropdown() {
+      const county = document.getElementById('store-select-county').value;
+      const distSelect = document.getElementById('store-select-district');
+      distSelect.innerHTML = '';
+
+      const districts = TW_COUNTIES_DATA[county] ? Object.keys(TW_COUNTIES_DATA[county]) : [];
+      districts.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        distSelect.appendChild(opt);
+      });
+
+      updateStoreOptionsList();
+    }
+
+    window.onDistrictChange = function() {
+      updateStoreOptionsList();
+    };
+
+    window.filterStoresByKeyword = function() {
+      updateStoreOptionsList();
+    };
+
+    function updateStoreOptionsList() {
+      const county = document.getElementById('store-select-county').value;
+      const district = document.getElementById('store-select-district').value;
+      const brand = window.selectedStoreBrand || '7-11';
+      const keyword = (document.getElementById('store-keyword-search').value || '').trim().toLowerCase();
+
+      const storeListSelect = document.getElementById('store-select-list');
+      storeListSelect.innerHTML = '';
+
+      let availableStores = [];
+      if (county && district && TW_COUNTIES_DATA[county] && TW_COUNTIES_DATA[county][district]) {
+        availableStores = TW_COUNTIES_DATA[county][district].filter(s => s.brand === brand);
+      }
+
+      if (keyword) {
+        availableStores = availableStores.filter(s => 
+          s.name.toLowerCase().includes(keyword) || 
+          s.code.includes(keyword) || 
+          s.addr.toLowerCase().includes(keyword)
+        );
+      }
+
+      document.getElementById('store-count-badge').textContent = `共 ${availableStores.length} 間門市`;
+
+      if (availableStores.length === 0) {
+        const opt = document.createElement('option');
+        opt.disabled = true;
+        opt.textContent = keyword ? `無符合「${keyword}」的門市` : `該區域暫無 ${brand} 門市資料`;
+        storeListSelect.appendChild(opt);
+        window.selectedStoreObject = null;
+        document.getElementById('selected-store-preview').textContent = '尚無選取的門市';
+        return;
+      }
+
+      availableStores.forEach((st, idx) => {
+        const opt = document.createElement('option');
+        opt.value = JSON.stringify(st);
+        opt.textContent = `[${st.brand}] ${st.name} (店號:${st.code}) - ${st.addr}`;
+        if (idx === 0) opt.selected = true;
+        storeListSelect.appendChild(opt);
+      });
+
+      if (availableStores.length > 0) {
+        window.selectedStoreObject = availableStores[0];
+        onStoreSelectChanged();
+      }
+    }
+
+    window.onStoreSelectChanged = function() {
+      const storeListSelect = document.getElementById('store-select-list');
+      if (!storeListSelect.value) return;
+
+      try {
+        const st = JSON.parse(storeListSelect.value);
+        window.selectedStoreObject = st;
+        document.getElementById('selected-store-preview').innerHTML = `
+          <span class="text-[#8c7759]">${st.brand}</span> ${st.name} <span class="text-[#524d46] font-normal">(店號: ${st.code})</span><br>
+          <span class="text-[11px] text-[#787268] font-normal">${st.addr}</span>
+        `;
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    window.applySelectedStoreFromList = function() {
+      if (!window.selectedStoreObject) {
+        showToast('請先選擇門市！');
+        return;
+      }
+
+      const st = window.selectedStoreObject;
+      const formattedAddress = `${st.brand} ${st.name} (店號 ${st.code})`;
+
+      // 1. 自動帶入「取貨門市 / 配送地址」欄位
+      const addressInput = document.getElementById('cust-address');
+      if (addressInput) {
+        addressInput.value = formattedAddress;
+        addressInput.focus();
+
+        addressInput.classList.add('bg-amber-50', 'border-[#282522]');
+        setTimeout(() => {
+          addressInput.classList.remove('bg-amber-50');
+        }, 1200);
+      }
+
+      // 2. 自動連動下拉選單切換對應物流 (7-11 或 全家)
+      const shippingSelect = document.getElementById('cust-shipping');
+      if (shippingSelect && shippingSelect.options) {
+        for (let i = 0; i < shippingSelect.options.length; i++) {
+          const optText = shippingSelect.options[i].text;
+          if (st.brand === '7-11' && (optText.includes('7-11') || optText.includes('7-ELEVEN'))) {
+            shippingSelect.selectedIndex = i;
+            break;
+          } else if (st.brand === '全家' && (optText.includes('全家') || optText.includes('Family'))) {
+            shippingSelect.selectedIndex = i;
+            break;
+          }
+        }
+        if (typeof window.updateCartTotals === 'function') window.updateCartTotals();
+      }
+
+      closeStoreLocatorModal();
+      showToast(`已成功自動帶入：${formattedAddress}`);
+    };
 
     window.renderShippingSelectOptions = function() {
       const select = document.getElementById('cust-shipping');
@@ -1745,92 +2009,6 @@
       document.getElementById('cart-drawer-overlay').classList.remove('opacity-0', 'pointer-events-none');
       document.getElementById('cart-drawer').classList.remove('translate-x-full');
       renderCartItems();
-    };
-
-    window.openStoreLocatorModal = function() {
-      const storeInput = document.getElementById('quick-store-name');
-      if (storeInput) storeInput.value = '';
-      selectStoreBrand('7-11');
-      document.getElementById('store-locator-modal').classList.remove('hidden');
-    };
-
-    window.closeStoreLocatorModal = function() {
-      document.getElementById('store-locator-modal').classList.add('hidden');
-    };
-
-    window.selectStoreBrand = function(brand) {
-      window.selectedStoreBrand = brand;
-      const brands = ['7-11', 'family', 'hilife', 'ok'];
-      const brandMap = { '7-11': '7-11', '全家': 'family', '萊爾富': 'hilife', 'OK': 'ok' };
-      
-      Object.keys(brandMap).forEach(key => {
-        const btnId = `btn-brand-${brandMap[key]}`;
-        const btn = document.getElementById(btnId);
-        if (btn) {
-          if (key === brand) {
-            btn.className = "py-2 px-1.5 border border-[#282522] bg-[#282522] text-white text-xs font-medium transition-colors text-center rounded-xs shadow-xs";
-          } else {
-            btn.className = "py-2 px-1.5 border border-[#d8d2c8] bg-white text-[#282522] hover:bg-[#ebe7e0] text-xs font-medium transition-colors text-center rounded-xs";
-          }
-        }
-      });
-    };
-
-    window.applySelectedStore = function() {
-      const storeNameInput = document.getElementById('quick-store-name');
-      const storeText = storeNameInput ? storeNameInput.value.trim() : '';
-      if (!storeText) {
-        showToast('請先輸入或貼上門市名稱與店號');
-        return;
-      }
-
-      const brand = window.selectedStoreBrand || '7-11';
-      let combinedAddress = '';
-      
-      // 自動辨識避免重複品名
-      if (storeText.startsWith('7-11') || storeText.startsWith('全家') || storeText.startsWith('萊爾富') || storeText.startsWith('OK')) {
-        combinedAddress = storeText;
-      } else {
-        combinedAddress = `${brand} ${storeText}`;
-      }
-
-      // 1. 直接填入「取貨門市 / 配送地址」表單欄位
-      const addressInput = document.getElementById('cust-address');
-      if (addressInput) {
-        addressInput.value = combinedAddress;
-        addressInput.focus();
-        
-        // 視覺亮光提示
-        addressInput.classList.add('bg-amber-50', 'border-[#282522]');
-        setTimeout(() => {
-          addressInput.classList.remove('bg-amber-50');
-        }, 1200);
-      }
-
-      // 2. 自動連動下拉選單切換對應物流 (7-11 / 全家)
-      const shippingSelect = document.getElementById('cust-shipping');
-      if (shippingSelect && shippingSelect.options) {
-        for (let i = 0; i < shippingSelect.options.length; i++) {
-          const optText = shippingSelect.options[i].text;
-          if (brand === '7-11' && (optText.includes('7-11') || optText.includes('7-ELEVEN') || optText.includes('統一超商'))) {
-            shippingSelect.selectedIndex = i;
-            break;
-          } else if (brand === '全家' && (optText.includes('全家') || optText.includes('Family'))) {
-            shippingSelect.selectedIndex = i;
-            break;
-          } else if (brand === '萊爾富' && optText.includes('萊爾富')) {
-            shippingSelect.selectedIndex = i;
-            break;
-          } else if (brand === 'OK' && optText.includes('OK')) {
-            shippingSelect.selectedIndex = i;
-            break;
-          }
-        }
-        if (typeof window.updateCartTotals === 'function') window.updateCartTotals();
-      }
-
-      closeStoreLocatorModal();
-      showToast(`已成功自動帶入：${combinedAddress}`);
     };
 
     window.closeCart = function() {
