@@ -1599,25 +1599,25 @@
           imageHTML = `
             <div class="relative w-full aspect-square bg-[#f5f3ef] overflow-hidden border-b border-[#e4e0d8]">
               <img src="${imageUrl}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-95" onerror="this.src='https://placehold.co/600x600/f5f3ef/282522?text=XUAN+COFFEE'">
-              ${p.isStar ? '<span class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-[#282522] text-[#f5f3ef] font-serif text-[10px] sm:text-[11px] px-2.5 py-1 tracking-wider uppercase font-medium shadow-sm"><span class="text-[#af8e28] drop-shadow-sm">★</span> 店長推薦</span>' : ''}
+              ${p.isStar ? '<span class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-[#282522] text-[#f5f3ef] font-serif text-xs sm:text-[11px] px-2.5 py-1 tracking-wider uppercase font-medium shadow-sm"><span class="text-[#af8e28] drop-shadow-sm">★</span> 店長推薦</span>' : ''}
             </div>
           `;
         }
 
         const roastBadge = (p.roast && p.roast.trim() !== '' && p.roast !== '無' && p.roast !== '無 / 混豆 (不標示)')
-          ? `<span class="inline-block px-2 py-0.5 bg-[#f5f3ef] border border-[#d8d2c8] text-[10px] sm:text-[11px] font-serif text-[#282522] font-semibold">${p.roast}</span>`
+          ? `<span class="inline-block px-2.5 py-1 bg-[#f5f3ef] border border-[#d8d2c8] text-xs sm:text-[11px] font-serif text-[#282522] font-semibold">${p.roast}</span>`
           : '';
 
         const processBadge = (p.process && p.process.trim() !== '') 
-          ? `<span class="inline-block px-2 py-0.5 bg-[#f5f3ef] border border-[#d8d2c8] text-[10px] sm:text-[11px] font-serif text-[#282522] font-semibold">${p.process}</span>`
+          ? `<span class="inline-block px-2.5 py-1 bg-[#f5f3ef] border border-[#d8d2c8] text-xs sm:text-[11px] font-serif text-[#282522] font-semibold">${p.process}</span>`
           : '';
 
         const starBadgeNoImage = (!showImage && p.isStar)
-          ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 bg-[#282522] text-[#f5f3ef] text-[10px] sm:text-[11px] font-serif font-medium tracking-wider shrink-0 shadow-xs"><span class="text-[#af8e28] drop-shadow-sm">★</span> 店長推薦</span>`
+          ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 bg-[#282522] text-[#f5f3ef] text-xs sm:text-[11px] font-serif font-medium tracking-wider shrink-0 shadow-xs"><span class="text-[#af8e28] drop-shadow-sm">★</span> 店長推薦</span>`
           : '';
 
         const originText = (p.origin && p.origin.trim() !== '')
-          ? `<p class="text-[11px] sm:text-xs text-[#524d46] tracking-widest uppercase font-serif font-bold">${p.origin}</p>`
+          ? `<p class="text-sm sm:text-xs text-[#524d46] tracking-widest uppercase font-serif font-bold">${p.origin}</p>`
           : '';
 
         card.innerHTML = `
@@ -1626,7 +1626,7 @@
             <div class="space-y-2">
               ${originText}
               
-              <h3 class="font-serif font-bold text-xl sm:text-xl text-[#282522] tracking-wide flex items-center justify-between gap-2">
+              <h3 class="font-serif font-bold text-2xl sm:text-xl text-[#282522] tracking-wide flex items-center justify-between gap-2">
                 <span>${p.name}</span>
                 ${starBadgeNoImage}
               </h3>
@@ -1634,21 +1634,21 @@
               <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
                 ${roastBadge}
                 ${processBadge}
-                <span class="inline-block px-2 py-0.5 bg-[#f5f3ef] border border-[#d8d2c8] text-[10px] sm:text-[11px] font-serif text-[#524d46]">${p.weight}</span>
+                <span class="inline-block px-2.5 py-1 bg-[#f5f3ef] border border-[#d8d2c8] text-xs sm:text-[11px] font-serif text-[#524d46]">${p.weight}</span>
               </div>
 
-              <div class="p-2.5 sm:p-3 bg-[#f5f3ef] border-l-2 border-[#8c7759] mt-2">
-                <p class="text-xs text-[#282522] font-serif leading-snug">
+              <div class="p-3 sm:p-3 bg-[#f5f3ef] border-l-2 border-[#8c7759] mt-2">
+                <p class="text-sm sm:text-xs text-[#282522] font-serif leading-snug">
                   <span class="text-[#8c7759] font-bold">風味：</span>${p.notes}
                 </p>
               </div>
             </div>
 
             <div class="pt-3.5 flex items-center justify-between mt-auto border-t border-[#e4e0d8]/60">
-              <div class="font-serif text-lg font-bold text-[#282522]">
+              <div class="font-serif text-xl sm:text-lg font-bold text-[#282522]">
                 ${window.formatNT(p.price)}
               </div>
-              <button onclick="addToCart('${p.id}')" class="border border-[#282522] text-[#282522] hover:bg-[#282522] hover:text-[#f5f3ef] px-4 py-1.5 text-xs font-serif tracking-widest uppercase transition-all font-semibold">
+              <button onclick="addToCart('${p.id}')" class="border border-[#282522] text-[#282522] hover:bg-[#282522] hover:text-[#f5f3ef] px-4.5 py-2 text-sm sm:text-xs font-serif tracking-widest uppercase transition-all font-semibold">
                 選購
               </button>
             </div>
