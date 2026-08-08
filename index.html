@@ -463,52 +463,58 @@
       </div>
 
       <p class="text-xs text-[#524d46] leading-relaxed">
-        請選擇超商種類，點擊前往官方地圖查門市，將查到的「<span class="font-bold text-[#282522]">超商種類、門市名稱與店號</span>」貼在下方帶入結帳表單：
+        請選擇超商種類，點擊前往地圖查門市，將查到的「<span class="font-bold text-[#282522]">門市名稱與店號</span>」填入下方即可<span class="font-bold text-[#8c7759]">直接自動帶入結帳表單</span>：
       </p>
 
       <!-- Store Maps Links -->
-      <div class="grid grid-cols-2 gap-3">
-        <a href="https://emap.pcsc.com.tw/" target="_blank" rel="noopener noreferrer" class="p-3 bg-white border border-[#d8d2c8] hover:border-[#006039] text-center transition-all flex flex-col items-center justify-center gap-1 shadow-xs group">
+      <div class="grid grid-cols-2 gap-2.5">
+        <a href="https://emap.pcsc.com.tw/" target="_blank" rel="noopener noreferrer" onclick="selectStoreBrand('7-11')" class="p-2.5 bg-white border border-[#d8d2c8] hover:border-[#006039] text-center transition-all flex flex-col items-center justify-center gap-1 shadow-xs group rounded-xs">
           <div class="flex items-center gap-1.5">
-            <span class="w-3 h-3 rounded-full bg-[#006039]"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-[#006039]"></span>
             <span class="font-bold text-xs text-[#006039]">7-11 統一超商</span>
           </div>
-          <span class="text-[10px] text-[#787268] group-hover:underline">打開地圖查詢 ↗</span>
+          <span class="text-[10px] text-[#787268] group-hover:underline">開啟官方地圖 ↗</span>
         </a>
-        <a href="https://www.family.com.tw/Marketing/Map" target="_blank" rel="noopener noreferrer" class="p-3 bg-white border border-[#d8d2c8] hover:border-[#004f9f] text-center transition-all flex flex-col items-center justify-center gap-1 shadow-xs group">
+        <a href="https://www.family.com.tw/Marketing/Map" target="_blank" rel="noopener noreferrer" onclick="selectStoreBrand('全家')" class="p-2.5 bg-white border border-[#d8d2c8] hover:border-[#004f9f] text-center transition-all flex flex-col items-center justify-center gap-1 shadow-xs group rounded-xs">
           <div class="flex items-center gap-1.5">
-            <span class="w-3 h-3 rounded-full bg-[#004f9f]"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-[#004f9f]"></span>
             <span class="font-bold text-xs text-[#004f9f]">全家便利商店</span>
           </div>
-          <span class="text-[10px] text-[#787268] group-hover:underline">打開地圖查詢 ↗</span>
+          <span class="text-[10px] text-[#787268] group-hover:underline">開啟官方地圖 ↗</span>
         </a>
       </div>
 
       <!-- Quick Store Filler Form -->
       <div class="pt-2 border-t border-[#e4e0d8] space-y-3">
         <div>
-          <label class="block text-xs font-semibold mb-1 text-[#282522]">1. 選擇超商體系：</label>
-          <div class="grid grid-cols-2 gap-2">
-            <button type="button" id="btn-brand-711" onclick="selectStoreBrand('7-11')" class="py-2 px-3 border border-[#282522] bg-[#282522] text-white text-xs font-medium transition-colors text-center">
-              7-11 統一超商
+          <label class="block text-xs font-semibold mb-1 text-[#282522]">1. 選擇取貨超商系統：</label>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button type="button" id="btn-brand-711" onclick="selectStoreBrand('7-11')" class="py-2 px-1.5 border border-[#282522] bg-[#282522] text-white text-xs font-medium transition-colors text-center rounded-xs">
+              7-11
             </button>
-            <button type="button" id="btn-brand-family" onclick="selectStoreBrand('全家')" class="py-2 px-3 border border-[#d8d2c8] bg-white text-[#282522] hover:bg-[#ebe7e0] text-xs font-medium transition-colors text-center">
-              全家便利商店
+            <button type="button" id="btn-brand-family" onclick="selectStoreBrand('全家')" class="py-2 px-1.5 border border-[#d8d2c8] bg-white text-[#282522] hover:bg-[#ebe7e0] text-xs font-medium transition-colors text-center rounded-xs">
+              全家
+            </button>
+            <button type="button" id="btn-brand-[#btn-brand-hilife]" onclick="selectStoreBrand('萊爾富')" class="py-2 px-1.5 border border-[#d8d2c8] bg-white text-[#282522] hover:bg-[#ebe7e0] text-xs font-medium transition-colors text-center rounded-xs">
+              萊爾富
+            </button>
+            <button type="button" id="btn-brand-ok" onclick="selectStoreBrand('OK')" class="py-2 px-1.5 border border-[#d8d2c8] bg-white text-[#282522] hover:bg-[#ebe7e0] text-xs font-medium transition-colors text-center rounded-xs">
+              OK
             </button>
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-semibold mb-1 text-[#282522]">2. 輸入門市名稱與店號：</label>
-          <input type="text" id="quick-store-name" placeholder="例如：欣漢華門市 (店號 123456)" class="w-full px-3 py-2 text-xs bg-white border border-[#d8d2c8] focus:border-[#282522] outline-none">
+          <input type="text" id="quick-store-name" placeholder="例如：欣漢華門市 (店號 123456)" class="w-full px-3 py-2 text-xs bg-white border border-[#d8d2c8] focus:border-[#282522] outline-none rounded-xs">
         </div>
 
-        <div class="flex gap-2 pt-2">
-          <button type="button" onclick="closeStoreLocatorModal()" class="w-1/2 py-2.5 border border-[#282522] text-[#282522] hover:bg-[#ebe7e0] text-xs uppercase transition-colors">
+        <div class="flex gap-2 pt-1">
+          <button type="button" onclick="closeStoreLocatorModal()" class="w-1/3 py-2.5 border border-[#282522] text-[#282522] hover:bg-[#ebe7e0] text-xs uppercase transition-colors rounded-xs">
             取消
           </button>
-          <button type="button" onclick="applySelectedStore()" class="w-1/2 py-2.5 bg-[#282522] hover:bg-black text-[#f5f3ef] text-xs uppercase font-medium transition-all shadow-sm">
-            確認帶入門市
+          <button type="button" onclick="applySelectedStore()" class="w-2/3 py-2.5 bg-[#282522] hover:bg-black text-[#f5f3ef] text-xs uppercase font-medium transition-all shadow-sm rounded-xs flex items-center justify-center gap-1">
+            <span>✨</span> <span>確認直接帶入表單</span>
           </button>
         </div>
       </div>
@@ -1741,9 +1747,9 @@
       renderCartItems();
     };
 
-    // FIX ISSUE 2: Store locator modal functions cleanly defined and responsive
     window.openStoreLocatorModal = function() {
-      document.getElementById('quick-store-name').value = '';
+      const storeInput = document.getElementById('quick-store-name');
+      if (storeInput) storeInput.value = '';
       selectStoreBrand('7-11');
       document.getElementById('store-locator-modal').classList.remove('hidden');
     };
@@ -1754,32 +1760,77 @@
 
     window.selectStoreBrand = function(brand) {
       window.selectedStoreBrand = brand;
-      const b711 = document.getElementById('btn-brand-711');
-      const bFam = document.getElementById('btn-brand-family');
-      if (brand === '7-11') {
-        b711.className = "py-2 px-3 border border-[#006039] bg-[#006039] text-white text-xs font-medium transition-colors text-center shadow-xs";
-        bFam.className = "py-2 px-3 border border-[#d8d2c8] bg-white text-[#282522] hover:bg-[#ebe7e0] text-xs font-medium transition-colors text-center";
-      } else {
-        b711.className = "py-2 px-3 border border-[#d8d2c8] bg-white text-[#282522] hover:bg-[#ebe7e0] text-xs font-medium transition-colors text-center";
-        bFam.className = "py-2 px-3 border border-[#004f9f] bg-[#004f9f] text-white text-xs font-medium transition-colors text-center shadow-xs";
-      }
+      const brands = ['7-11', 'family', 'hilife', 'ok'];
+      const brandMap = { '7-11': '7-11', '全家': 'family', '萊爾富': 'hilife', 'OK': 'ok' };
+      
+      Object.keys(brandMap).forEach(key => {
+        const btnId = `btn-brand-${brandMap[key]}`;
+        const btn = document.getElementById(btnId);
+        if (btn) {
+          if (key === brand) {
+            btn.className = "py-2 px-1.5 border border-[#282522] bg-[#282522] text-white text-xs font-medium transition-colors text-center rounded-xs shadow-xs";
+          } else {
+            btn.className = "py-2 px-1.5 border border-[#d8d2c8] bg-white text-[#282522] hover:bg-[#ebe7e0] text-xs font-medium transition-colors text-center rounded-xs";
+          }
+        }
+      });
     };
 
     window.applySelectedStore = function() {
-      const storeName = document.getElementById('quick-store-name').value.trim();
-      if (!storeName) {
-        showToast('請填寫門市名稱或店號');
+      const storeNameInput = document.getElementById('quick-store-name');
+      const storeText = storeNameInput ? storeNameInput.value.trim() : '';
+      if (!storeText) {
+        showToast('請先輸入或貼上門市名稱與店號');
         return;
       }
+
+      const brand = window.selectedStoreBrand || '7-11';
+      let combinedAddress = '';
       
-      const combinedAddress = `${window.selectedStoreBrand} ${storeName}`;
+      // 自動辨識避免重複品名
+      if (storeText.startsWith('7-11') || storeText.startsWith('全家') || storeText.startsWith('萊爾富') || storeText.startsWith('OK')) {
+        combinedAddress = storeText;
+      } else {
+        combinedAddress = `${brand} ${storeText}`;
+      }
+
+      // 1. 直接填入「取貨門市 / 配送地址」表單欄位
       const addressInput = document.getElementById('cust-address');
       if (addressInput) {
         addressInput.value = combinedAddress;
         addressInput.focus();
+        
+        // 視覺亮光提示
+        addressInput.classList.add('bg-amber-50', 'border-[#282522]');
+        setTimeout(() => {
+          addressInput.classList.remove('bg-amber-50');
+        }, 1200);
       }
+
+      // 2. 自動連動下拉選單切換對應物流 (7-11 / 全家)
+      const shippingSelect = document.getElementById('cust-shipping');
+      if (shippingSelect && shippingSelect.options) {
+        for (let i = 0; i < shippingSelect.options.length; i++) {
+          const optText = shippingSelect.options[i].text;
+          if (brand === '7-11' && (optText.includes('7-11') || optText.includes('7-ELEVEN') || optText.includes('統一超商'))) {
+            shippingSelect.selectedIndex = i;
+            break;
+          } else if (brand === '全家' && (optText.includes('全家') || optText.includes('Family'))) {
+            shippingSelect.selectedIndex = i;
+            break;
+          } else if (brand === '萊爾富' && optText.includes('萊爾富')) {
+            shippingSelect.selectedIndex = i;
+            break;
+          } else if (brand === 'OK' && optText.includes('OK')) {
+            shippingSelect.selectedIndex = i;
+            break;
+          }
+        }
+        if (typeof window.updateCartTotals === 'function') window.updateCartTotals();
+      }
+
       closeStoreLocatorModal();
-      showToast(`已成功帶入門市：「${combinedAddress}」`);
+      showToast(`已成功自動帶入：${combinedAddress}`);
     };
 
     window.closeCart = function() {
