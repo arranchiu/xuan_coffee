@@ -335,14 +335,14 @@
   </div>
 
   <!-- Order Receipt Modal -->
-  <div id="receipt-modal" class="fixed inset-0 z-50 bg-[#282522]/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden overscroll-contain">
+  <div id="receipt-modal" onclick="handleReceiptBackdropClick(event)" class="fixed inset-0 z-50 bg-[#282522]/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden overscroll-contain">
     <div class="bg-[#f5f3ef] text-[#282522] max-w-xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-[#d8d2c8] my-auto overflow-hidden">
       
       <div class="px-5 py-4 bg-[#282522] text-[#f5f3ef] border-b border-[#3a3632] flex items-center justify-between shrink-0 relative">
         <div class="font-serif font-light text-xs sm:text-sm tracking-widest uppercase text-center w-full">
           訂單成立 ‧ 訂購明細圖卡
         </div>
-        <button id="rc-modal-close-x" onclick="closeReceiptModal()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 text-[#a8a298] hover:text-white text-2xl font-light leading-none p-2 transition-colors cursor-pointer" title="關閉視窗">
+        <button id="rc-modal-close-x" onclick="attemptCloseReceiptModal()" class="absolute right-4 top-1/2 -translate-y-1/2 text-[#a8a298] hover:text-white text-2xl font-light leading-none p-2 transition-colors cursor-pointer" title="關閉視窗">
           ×
         </button>
       </div>
@@ -435,11 +435,35 @@
       </div>
 
       <div class="p-3.5 sm:p-4 bg-[#f5f3ef] border-t border-[#d8d2c8] flex flex-col sm:flex-row gap-2 shrink-0">
-        <button id="download-png-btn" onclick="downloadReceiptPNG()" class="w-full bg-[#282522] hover:bg-black text-[#f5f3ef] font-medium py-3 px-4 tracking-widest text-xs uppercase transition-all shadow-sm">
+        <button id="download-png-btn" onclick="downloadReceiptPNG()" class="w-full sm:w-1/2 bg-[#282522] hover:bg-black text-[#f5f3ef] font-medium py-3 px-4 tracking-widest text-xs uppercase transition-all shadow-sm">
           下載訂單分享給店長
+        </button>
+        <button onclick="attemptCloseReceiptModal()" class="w-full sm:w-1/2 border border-[#282522] text-[#282522] hover:bg-[#ebe7e0] font-serif font-medium py-3 px-4 tracking-widest text-xs uppercase transition-all">
+          返回繼續購物
         </button>
       </div>
 
+    </div>
+  </div>
+
+  <!-- Receipt Unsaved Download Warning Modal (Safeguard) -->
+  <div id="receipt-close-confirm-modal" class="fixed inset-0 z-[60] bg-[#282522]/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-[#f5f3ef] text-[#282522] max-w-sm w-full p-6 border border-[#d8d2c8] shadow-2xl space-y-4 font-serif text-center">
+      <div class="space-y-1">
+        <span class="text-xs text-[#8c7759] font-bold tracking-widest uppercase block">⚠️ 尚未下載訂單</span>
+        <h3 class="text-base font-bold text-[#282522]">確定不下載圖卡直接關閉嗎？</h3>
+      </div>
+      <p class="text-xs text-[#524d46] leading-relaxed">
+        下載明細圖卡傳給店長，能方便快速為您對帳與安排出貨喔！
+      </p>
+      <div class="flex flex-col gap-2 pt-2">
+        <button type="button" onclick="confirmDownloadAndClose()" class="w-full py-2.5 bg-[#282522] hover:bg-black text-[#f5f3ef] text-xs tracking-widest uppercase font-medium shadow-sm">
+          📥 條列下單並下載圖卡
+        </button>
+        <button type="button" onclick="forceCloseReceiptModal()" class="w-full py-2.5 border border-[#d8d2c8] text-[#787268] hover:text-[#282522] hover:bg-[#ebe7e0] text-xs tracking-widest uppercase transition-colors">
+          直接關閉並返回購物
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1137,20 +1161,22 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    window.formatNT = function(amount) {
+    function formatNT(amount) {
       const num = Number(amount) || 0;
       return `NT$ ${num.toLocaleString('zh-TW')}`;
-    };
+    }
+    window.formatNT = formatNT;
 
-    window.setProcessValue = function(val, inputId) {
+    function setProcessValue(val, inputId) {
       const input = document.getElementById(inputId);
       if (input) {
         input.value = val;
         input.focus();
       }
-    };
+    }
+    window.setProcessValue = setProcessValue;
 
-    window.handleProductFileUpload = function(e, targetInputId, fileNameElemId) {
+    function handleProductFileUpload(e, targetInputId, fileNameElemId) {
       const file = e.target.files[0];
       if (!file) return;
       if (!file.type.startsWith('image/')) {
@@ -1175,7 +1201,82 @@
         showToast('已選擇商品圖片！別忘了點擊「新增/儲存」');
       };
       reader.readAsDataURL(file);
-    };
+    }
+    window.handleProductFileUpload = handleProductFileUpload;
+
+    function scrollCategoryTabs(delta) {
+      const wrapper = document.getElementById('category-tabs-wrapper');
+      if (wrapper) {
+        wrapper.scrollBy({ left: delta, behavior: 'smooth' });
+      }
+    }
+    window.scrollCategoryTabs = scrollCategoryTabs;
+
+    function updateCategoryScrollIndicators() {
+      const wrapper = document.getElementById('category-tabs-wrapper');
+      const leftBtn = document.getElementById('cat-scroll-left');
+      const rightBtn = document.getElementById('cat-scroll-right');
+      if (!wrapper || !leftBtn || !rightBtn) return;
+
+      const scrollLeft = wrapper.scrollLeft;
+      const maxScroll = wrapper.scrollWidth - wrapper.clientWidth;
+
+      if (scrollLeft > 3) {
+        leftBtn.classList.remove('opacity-0', 'pointer-events-none');
+        leftBtn.classList.add('opacity-100');
+      } else {
+        leftBtn.classList.add('opacity-0', 'pointer-events-none');
+        leftBtn.classList.remove('opacity-100');
+      }
+
+      if (maxScroll - scrollLeft > 3) {
+        rightBtn.classList.remove('opacity-0', 'pointer-events-none');
+        rightBtn.classList.add('opacity-100');
+      } else {
+        rightBtn.classList.add('opacity-0', 'pointer-events-none');
+        rightBtn.classList.remove('opacity-100');
+      }
+    }
+    window.updateCategoryScrollIndicators = updateCategoryScrollIndicators;
+
+    function toggleStarFilter() {
+      window.onlyStarFilter = !window.onlyStarFilter;
+      const btn = document.getElementById('star-filter-btn');
+      const txt = document.getElementById('star-filter-text');
+      if (window.onlyStarFilter) {
+        btn.classList.add('bg-[#282522]', 'text-[#f5f3ef]', 'border-[#282522]');
+        btn.classList.remove('bg-white/50', 'text-[#af8e28]', 'border-[#8c7759]/40');
+        if (txt) txt.textContent = '只看店長推薦中';
+      } else {
+        btn.classList.remove('bg-[#282522]', 'text-[#f5f3ef]', 'border-[#282522]');
+        btn.classList.add('bg-white/50', 'text-[#af8e28]', 'border-[#8c7759]/40');
+        if (txt) txt.textContent = '店長推薦品項';
+      }
+      renderProductsGrid();
+    }
+    window.toggleStarFilter = toggleStarFilter;
+
+    function setupAdminLoginEnterKey() {
+      const adminLoginForm = document.getElementById('admin-login-form');
+      const passInput = document.getElementById('admin-password-input');
+
+      if (adminLoginForm) {
+        adminLoginForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          handleAdminLogin(e);
+        });
+      }
+
+      if (passInput) {
+        passInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            handleAdminLogin(e);
+          }
+        });
+      }
+    }
+    window.setupAdminLoginEnterKey = setupAdminLoginEnterKey;
 
     const DEFAULT_PRODUCTS = [
       { id: 'p0', category: '中南美洲', origin: '巴拿馬 波奎特', name: '翡翠莊園 競標藝妓', isStar: true, roast: '淺焙', process: '日曬', notes: '佛手柑、水蜜桃、茉莉花香、高級紅酒韻味', weight: '半磅 (227g)', price: 1200, image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80' },
@@ -1224,14 +1325,16 @@
     window.activeCategory = '全部';
     window.onlyStarFilter = false;
     window.hasUnsavedChanges = false;
+    let hasDownloadedReceipt = false;
 
     let tripleClickCounter = 0;
     let tripleClickTimer = null;
     let draggedItemIndex = null;
 
-    window.markUnsavedChanges = function() {
+    function markUnsavedChanges() {
       window.hasUnsavedChanges = true;
-    };
+    }
+    window.markUnsavedChanges = markUnsavedChanges;
 
     async function initFirebaseSync() {
       try {
@@ -1295,96 +1398,75 @@
       }
     }
 
-    window.saveState = function() {
+    function saveState() {
       saveToCloud();
-    };
+    }
+    window.saveState = saveState;
 
-    window.showToast = function(text) {
+    function showToast(text) {
       const container = document.getElementById('toast-container');
       const textElem = document.getElementById('toast-text');
-      textElem.textContent = text;
-      container.classList.remove('translate-y-10', 'opacity-0');
-      container.classList.add('translate-y-0', 'opacity-100');
-      setTimeout(() => {
-        container.classList.remove('translate-y-0', 'opacity-100');
-        container.classList.add('translate-y-10', 'opacity-0');
-      }, 2500);
-    };
-
-    window.closeReceiptModal = function() {
-      document.getElementById('receipt-modal').classList.add('hidden');
-    };
-
-    window.closeLongpressModal = function() {
-      document.getElementById('mobile-img-save-modal').classList.add('hidden');
-      clearCart();
-      closeReceiptModal();
-    };
-
-    document.addEventListener('DOMContentLoaded', () => {
-      applySettingsToUI();
-      renderShippingSelectOptions();
-      renderCategoryTabs();
-      renderProductsGrid();
-      updateCartBadge();
-      
-      initFirebaseSync();
-      setupTripleClickTriggers();
-      setupAdminLoginEnterKey();
-
-      window.addEventListener('resize', () => {
-        if (typeof window.updateCategoryScrollIndicators === 'function') window.updateCategoryScrollIndicators();
-      });
-    });
-
-    function setupAdminLoginEnterKey() {
-      const adminLoginForm = document.getElementById('admin-login-form');
-      const passInput = document.getElementById('admin-password-input');
-
-      if (adminLoginForm) {
-        adminLoginForm.addEventListener('submit', (e) => {
-          e.preventDefault();
-          handleAdminLogin(e);
-        });
-      }
-
-      if (passInput) {
-        passInput.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            handleAdminLogin(e);
-          }
-        });
+      if (textElem) textElem.textContent = text;
+      if (container) {
+        container.classList.remove('translate-y-10', 'opacity-0');
+        container.classList.add('translate-y-0', 'opacity-100');
+        setTimeout(() => {
+          container.classList.remove('translate-y-0', 'opacity-100');
+          container.classList.add('translate-y-10', 'opacity-0');
+        }, 2500);
       }
     }
+    window.showToast = showToast;
 
-    window.renderShippingSelectOptions = function() {
-      const select = document.getElementById('cust-shipping');
-      if (!select) return;
-      const currentVal = select.value;
-      select.innerHTML = '';
+    function closeReceiptModal() {
+      attemptCloseReceiptModal();
+    }
+    window.closeReceiptModal = closeReceiptModal;
 
-      const subtotal = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-      const threshold = Number(window.settings.freeShippingThreshold || 2000);
-      const isFreeShipping = subtotal >= threshold && subtotal > 0;
-
-      window.shippingMethods.forEach(sm => {
-        const opt = document.createElement('option');
-        opt.value = sm.id;
-        const feeText = isFreeShipping ? 'NT$ 0 免運' : window.formatNT(sm.fee);
-        opt.textContent = `${sm.name} (${feeText})`;
-        select.appendChild(opt);
-      });
-
-      if (currentVal && window.shippingMethods.some(s => s.id === currentVal)) {
-        select.value = currentVal;
+    function handleReceiptBackdropClick(e) {
+      if (e.target.id === 'receipt-modal') {
+        attemptCloseReceiptModal();
       }
-      updateCartTotals();
-    };
+    }
+    window.handleReceiptBackdropClick = handleReceiptBackdropClick;
 
-    window.applySettingsToUI = function() {
+    function attemptCloseReceiptModal() {
+      if (hasDownloadedReceipt) {
+        forceCloseReceiptModal();
+      } else {
+        const modal = document.getElementById('receipt-close-confirm-modal');
+        if (modal) modal.classList.remove('hidden');
+      }
+    }
+    window.attemptCloseReceiptModal = attemptCloseReceiptModal;
+
+    function confirmDownloadAndClose() {
+      const modal = document.getElementById('receipt-close-confirm-modal');
+      if (modal) modal.classList.add('hidden');
+      downloadReceiptPNG();
+    }
+    window.confirmDownloadAndClose = confirmDownloadAndClose;
+
+    function forceCloseReceiptModal() {
+      const modal = document.getElementById('receipt-close-confirm-modal');
+      if (modal) modal.classList.add('hidden');
+      const rcModal = document.getElementById('receipt-modal');
+      if (rcModal) rcModal.classList.add('hidden');
+      showToast('感謝您的訂購！');
+    }
+    window.forceCloseReceiptModal = forceCloseReceiptModal;
+
+    function closeLongpressModal() {
+      const modal = document.getElementById('mobile-img-save-modal');
+      if (modal) modal.classList.add('hidden');
+      clearCart();
+      forceCloseReceiptModal();
+    }
+    window.closeLongpressModal = closeLongpressModal;
+
+    function applySettingsToUI() {
       const bannerText = document.getElementById('banner-text');
-      if (bannerText) bannerText.textContent = `全館滿 ${window.formatNT(window.settings.freeShippingThreshold)} 即享免運優惠`;
+      if (bannerText) bannerText.textContent = `全館滿 ${formatNT(window.settings.freeShippingThreshold)} 即享免運優惠`;
       
       const shopTitle = document.getElementById('shop-title');
       if (shopTitle) shopTitle.textContent = window.settings.shopName;
@@ -1430,7 +1512,7 @@
         if (logoImg) logoImg.classList.add('hidden');
         if (logoSvg) logoSvg.classList.remove('hidden');
         if (siteFavicon) {
-          siteFavicon.href = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23282522' stroke-width='1.8'%3E%3Cpath d='M18 8h1a4 4 0 0 1 0 8h-1'/%3E%3Cpath d='M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z'/%3E%3Cline x1='6' y1='1' x2='6' y2='4'/%3E%3Cline x1='10' y1='1' x2='10' y2='4'/%3E%3Cline x1='14' y1='1' x2='14' y2='4'/%3E%3C/svg%3E";
+          siteFavicon.href = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23282522' stroke-width='1.8'%3E%3Cpath d='M18 8h1a4 4 0 0 1 0 8h-1'/%3E%3Cpath d='M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z'/%3E%3Cline x1='6' y1='1' x2='6' y2='4'/%3E%3Cline x1='10' y1='1' x2='10' y2='4'/%3E%3C/svg%3E";
         }
       }
 
@@ -1456,9 +1538,10 @@
       if (typeof window.togglePaymentNotice === 'function') {
         window.togglePaymentNotice();
       }
-    };
+    }
+    window.applySettingsToUI = applySettingsToUI;
 
-    window.handleLogoFileUpload = function(e) {
+    function handleLogoFileUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
       if (!file.type.startsWith('image/')) {
@@ -1472,25 +1555,57 @@
       const reader = new FileReader();
       reader.onload = function(evt) {
         const dataUrl = evt.target.result;
-        document.getElementById('cfg-logo-url').value = dataUrl;
-        document.getElementById('cfg-logo-file-name').textContent = file.name;
+        const logoUrlInput = document.getElementById('cfg-logo-url');
+        const logoFileName = document.getElementById('cfg-logo-file-name');
+        if (logoUrlInput) logoUrlInput.value = dataUrl;
+        if (logoFileName) logoFileName.textContent = file.name;
         markUnsavedChanges();
         showToast('Logo 圖片已選取，請點擊「儲存全站設定」');
       };
       reader.readAsDataURL(file);
-    };
+    }
+    window.handleLogoFileUpload = handleLogoFileUpload;
 
-    window.restoreDefaultLogo = function() {
+    function restoreDefaultLogo() {
       window.settings.logoUrl = '';
-      document.getElementById('cfg-logo-url').value = '';
-      document.getElementById('cfg-logo-file-name').textContent = '未選擇檔案';
+      const logoUrlInput = document.getElementById('cfg-logo-url');
+      const logoFileName = document.getElementById('cfg-logo-file-name');
+      if (logoUrlInput) logoUrlInput.value = '';
+      if (logoFileName) logoFileName.textContent = '未選擇檔案';
       applySettingsToUI();
       saveToCloud();
       showToast('已恢復預設 Logo 與網頁圖示');
-    };
+    }
+    window.restoreDefaultLogo = restoreDefaultLogo;
 
-    window.renderCategoryTabs = function() {
+    function renderShippingSelectOptions() {
+      const select = document.getElementById('cust-shipping');
+      if (!select) return;
+      const currentVal = select.value;
+      select.innerHTML = '';
+
+      const subtotal = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const threshold = Number(window.settings.freeShippingThreshold || 2000);
+      const isFreeShipping = subtotal >= threshold && subtotal > 0;
+
+      window.shippingMethods.forEach(sm => {
+        const opt = document.createElement('option');
+        opt.value = sm.id;
+        const feeText = isFreeShipping ? 'NT$ 0 免運' : formatNT(sm.fee);
+        opt.textContent = `${sm.name} (${feeText})`;
+        select.appendChild(opt);
+      });
+
+      if (currentVal && window.shippingMethods.some(s => s.id === currentVal)) {
+        select.value = currentVal;
+      }
+      updateCartTotals();
+    }
+    window.renderShippingSelectOptions = renderShippingSelectOptions;
+
+    function renderCategoryTabs() {
       const container = document.getElementById('category-tabs');
+      if (!container) return;
       container.innerHTML = '';
 
       window.categories.forEach(cat => {
@@ -1510,64 +1625,19 @@
         container.appendChild(btn);
       });
 
-      document.getElementById('active-category-title').textContent = window.activeCategory === '全部' ? '所有商品' : window.activeCategory;
+      const titleElem = document.getElementById('active-category-title');
+      if (titleElem) titleElem.textContent = window.activeCategory === '全部' ? '所有商品' : window.activeCategory;
+      
       setTimeout(() => {
         if (typeof window.updateCategoryScrollIndicators === 'function') window.updateCategoryScrollIndicators();
       }, 50);
-    };
+    }
+    window.renderCategoryTabs = renderCategoryTabs;
 
-    window.scrollCategoryTabs = function(delta) {
-      const wrapper = document.getElementById('category-tabs-wrapper');
-      if (wrapper) {
-        wrapper.scrollBy({ left: delta, behavior: 'smooth' });
-      }
-    };
-
-    window.updateCategoryScrollIndicators = function() {
-      const wrapper = document.getElementById('category-tabs-wrapper');
-      const leftBtn = document.getElementById('cat-scroll-left');
-      const rightBtn = document.getElementById('cat-scroll-right');
-      if (!wrapper || !leftBtn || !rightBtn) return;
-
-      const scrollLeft = wrapper.scrollLeft;
-      const maxScroll = wrapper.scrollWidth - wrapper.clientWidth;
-
-      if (scrollLeft > 3) {
-        leftBtn.classList.remove('opacity-0', 'pointer-events-none');
-        leftBtn.classList.add('opacity-100');
-      } else {
-        leftBtn.classList.add('opacity-0', 'pointer-events-none');
-        leftBtn.classList.remove('opacity-100');
-      }
-
-      if (maxScroll - scrollLeft > 3) {
-        rightBtn.classList.remove('opacity-0', 'pointer-events-none');
-        rightBtn.classList.add('opacity-100');
-      } else {
-        rightBtn.classList.add('opacity-0', 'pointer-events-none');
-        rightBtn.classList.remove('opacity-100');
-      }
-    };
-
-    window.toggleStarFilter = function() {
-      window.onlyStarFilter = !window.onlyStarFilter;
-      const btn = document.getElementById('star-filter-btn');
-      const txt = document.getElementById('star-filter-text');
-      if (window.onlyStarFilter) {
-        btn.classList.add('bg-[#282522]', 'text-[#f5f3ef]', 'border-[#282522]');
-        btn.classList.remove('bg-white/50', 'text-[#af8e28]', 'border-[#8c7759]/40');
-        txt.textContent = '只看店長推薦中';
-      } else {
-        btn.classList.remove('bg-[#282522]', 'text-[#f5f3ef]', 'border-[#282522]');
-        btn.classList.add('bg-white/50', 'text-[#af8e28]', 'border-[#8c7759]/40');
-        txt.textContent = '店長推薦品項';
-      }
-      renderProductsGrid();
-    };
-
-    window.renderProductsGrid = function() {
+    function renderProductsGrid() {
       const grid = document.getElementById('products-grid');
       const emptyMsg = document.getElementById('no-products-msg');
+      if (!grid) return;
       grid.innerHTML = '';
 
       let filtered = window.activeCategory === '全部' 
@@ -1579,10 +1649,10 @@
       }
 
       if (filtered.length === 0) {
-        emptyMsg.classList.remove('hidden');
+        if (emptyMsg) emptyMsg.classList.remove('hidden');
         return;
       } else {
-        emptyMsg.classList.add('hidden');
+        if (emptyMsg) emptyMsg.classList.add('hidden');
       }
 
       filtered.forEach(p => {
@@ -1599,21 +1669,21 @@
           imageHTML = `
             <div class="relative w-full aspect-square bg-[#f5f3ef] overflow-hidden border-b border-[#e4e0d8]">
               <img src="${imageUrl}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-95" onerror="this.src='https://placehold.co/600x600/f5f3ef/282522?text=XUAN+COFFEE'">
-              ${p.isStar ? '<span class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-[#282522] text-[#f5f3ef] font-serif text-xs sm:text-[11px] px-2.5 py-1 tracking-wider uppercase font-medium shadow-sm"><span class="text-[#af8e28] drop-shadow-sm">★</span> 店長推薦</span>' : ''}
+              ${p.isStar ? '<span class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-[#282522] text-[#f5f3ef] font-serif text-[10px] sm:text-[11px] px-2.5 py-1 tracking-wider uppercase font-medium shadow-sm"><span class="text-[#af8e28] drop-shadow-sm">★</span> 店長推薦</span>' : ''}
             </div>
           `;
         }
 
         const roastBadge = (p.roast && p.roast.trim() !== '' && p.roast !== '無' && p.roast !== '無 / 混豆 (不標示)')
-          ? `<span class="inline-block px-2.5 py-1 bg-[#f5f3ef] border border-[#d8d2c8] text-xs sm:text-[11px] font-serif text-[#282522] font-semibold">${p.roast}</span>`
+          ? `<span class="inline-block px-2 py-0.5 bg-[#f5f3ef] border border-[#d8d2c8] text-xs sm:text-xs font-serif text-[#282522] font-semibold">${p.roast}</span>`
           : '';
 
         const processBadge = (p.process && p.process.trim() !== '') 
-          ? `<span class="inline-block px-2.5 py-1 bg-[#f5f3ef] border border-[#d8d2c8] text-xs sm:text-[11px] font-serif text-[#282522] font-semibold">${p.process}</span>`
+          ? `<span class="inline-block px-2 py-0.5 bg-[#f5f3ef] border border-[#d8d2c8] text-xs sm:text-xs font-serif text-[#282522] font-semibold">${p.process}</span>`
           : '';
 
         const starBadgeNoImage = (!showImage && p.isStar)
-          ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 bg-[#282522] text-[#f5f3ef] text-xs sm:text-[11px] font-serif font-medium tracking-wider shrink-0 shadow-xs"><span class="text-[#af8e28] drop-shadow-sm">★</span> 店長推薦</span>`
+          ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 bg-[#282522] text-[#f5f3ef] text-xs sm:text-xs font-serif font-medium tracking-wider shrink-0 shadow-xs"><span class="text-[#af8e28] drop-shadow-sm">★</span> 店長推薦</span>`
           : '';
 
         const originText = (p.origin && p.origin.trim() !== '')
@@ -1634,10 +1704,10 @@
               <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
                 ${roastBadge}
                 ${processBadge}
-                <span class="inline-block px-2.5 py-1 bg-[#f5f3ef] border border-[#d8d2c8] text-xs sm:text-[11px] font-serif text-[#524d46]">${p.weight}</span>
+                <span class="inline-block px-2 py-0.5 bg-[#f5f3ef] border border-[#d8d2c8] text-xs sm:text-xs font-serif text-[#524d46]">${p.weight}</span>
               </div>
 
-              <div class="p-3 sm:p-3 bg-[#f5f3ef] border-l-2 border-[#8c7759] mt-2">
+              <div class="p-2.5 sm:p-3 bg-[#f5f3ef] border-l-2 border-[#8c7759] mt-2">
                 <p class="text-sm sm:text-xs text-[#282522] font-serif leading-snug">
                   <span class="text-[#8c7759] font-bold">風味：</span>${p.notes}
                 </p>
@@ -1646,9 +1716,9 @@
 
             <div class="pt-3.5 flex items-center justify-between mt-auto border-t border-[#e4e0d8]/60">
               <div class="font-serif text-xl sm:text-lg font-bold text-[#282522]">
-                ${window.formatNT(p.price)}
+                ${formatNT(p.price)}
               </div>
-              <button onclick="addToCart('${p.id}')" class="border border-[#282522] text-[#282522] hover:bg-[#282522] hover:text-[#f5f3ef] px-4.5 py-2 text-sm sm:text-xs font-serif tracking-widest uppercase transition-all font-semibold">
+              <button onclick="addToCart('${p.id}')" class="border border-[#282522] text-[#282522] hover:bg-[#282522] hover:text-[#f5f3ef] px-4 py-1.5 text-sm sm:text-xs font-serif tracking-widest uppercase transition-all font-semibold">
                 選購
               </button>
             </div>
@@ -1657,20 +1727,27 @@
 
         grid.appendChild(card);
       });
-    };
+    }
+    window.renderProductsGrid = renderProductsGrid;
 
-    window.openCart = function() {
-      document.getElementById('cart-drawer-overlay').classList.remove('opacity-0', 'pointer-events-none');
-      document.getElementById('cart-drawer').classList.remove('translate-x-full');
+    function openCart() {
+      const overlay = document.getElementById('cart-drawer-overlay');
+      const drawer = document.getElementById('cart-drawer');
+      if (overlay) overlay.classList.remove('opacity-0', 'pointer-events-none');
+      if (drawer) drawer.classList.remove('translate-x-full');
       renderCartItems();
-    };
+    }
+    window.openCart = openCart;
 
-    window.closeCart = function() {
-      document.getElementById('cart-drawer-overlay').classList.add('opacity-0', 'pointer-events-none');
-      document.getElementById('cart-drawer').classList.add('translate-x-full');
-    };
+    function closeCart() {
+      const overlay = document.getElementById('cart-drawer-overlay');
+      const drawer = document.getElementById('cart-drawer');
+      if (overlay) overlay.classList.add('opacity-0', 'pointer-events-none');
+      if (drawer) drawer.classList.add('translate-x-full');
+    }
+    window.closeCart = closeCart;
 
-    window.addToCart = function(productId) {
+    function addToCart(productId) {
       const item = window.products.find(p => p.id === productId);
       if (!item) return;
 
@@ -1684,9 +1761,10 @@
       localStorage.setItem('xc_cart', JSON.stringify(window.cart));
       updateCartBadge();
       showToast(`已將「${item.name}」加入購物車`);
-    };
+    }
+    window.addToCart = addToCart;
 
-    window.updateCartQty = function(productId, delta) {
+    function updateCartQty(productId, delta) {
       const idx = window.cart.findIndex(c => c.id === productId);
       if (idx !== -1) {
         window.cart[idx].qty += delta;
@@ -1697,17 +1775,19 @@
       localStorage.setItem('xc_cart', JSON.stringify(window.cart));
       updateCartBadge();
       renderCartItems();
-    };
+    }
+    window.updateCartQty = updateCartQty;
 
-    window.clearCart = function() {
+    function clearCart() {
       if (window.cart.length === 0) return;
       window.cart = [];
       localStorage.setItem('xc_cart', JSON.stringify(window.cart));
       updateCartBadge();
       renderCartItems();
-    };
+    }
+    window.clearCart = clearCart;
 
-    window.updateCartBadge = function() {
+    function updateCartBadge() {
       const badge = document.getElementById('cart-badge');
       const floatBadge = document.getElementById('floating-cart-badge');
       const totalQty = window.cart.reduce((sum, item) => sum + item.qty, 0);
@@ -1727,21 +1807,23 @@
           floatBadge.classList.add('hidden');
         }
       }
-    };
+    }
+    window.updateCartBadge = updateCartBadge;
 
-    window.renderCartItems = function() {
+    function renderCartItems() {
       const container = document.getElementById('cart-items-list');
       const emptyMsg = document.getElementById('cart-empty-msg');
       const countElem = document.getElementById('cart-items-count');
 
+      if (!container) return;
       container.innerHTML = '';
       const totalQty = window.cart.reduce((sum, item) => sum + item.qty, 0);
-      countElem.textContent = totalQty;
+      if (countElem) countElem.textContent = totalQty;
 
       if (window.cart.length === 0) {
-        emptyMsg.classList.remove('hidden');
+        if (emptyMsg) emptyMsg.classList.remove('hidden');
       } else {
-        emptyMsg.classList.add('hidden');
+        if (emptyMsg) emptyMsg.classList.add('hidden');
       }
 
       window.cart.forEach(item => {
@@ -1753,7 +1835,7 @@
               ${item.name} ${item.isStar ? '<span class="text-[#af8e28] drop-shadow-sm">★</span>' : ''}
             </h4>
             <p class="text-[11px] text-[#524d46] mt-0.5">${item.roast} ｜ ${item.weight}</p>
-            <p class="text-xs font-bold text-[#282522] mt-1">${window.formatNT(item.price)}</p>
+            <p class="text-xs font-bold text-[#282522] mt-1">${formatNT(item.price)}</p>
           </div>
           <div class="flex items-center gap-2.5">
             <div class="flex items-center border border-[#d8d2c8]">
@@ -1776,9 +1858,10 @@
       });
 
       updateCartTotals();
-    };
+    }
+    window.renderCartItems = renderCartItems;
 
-    window.updateCartTotals = function() {
+    function updateCartTotals() {
       const subtotal = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
       const selectedShipId = document.getElementById('cust-shipping')?.value;
       const currentShipMethod = window.shippingMethods.find(s => s.id === selectedShipId) || window.shippingMethods[0] || { name: '宅配', fee: 60 };
@@ -1791,7 +1874,7 @@
         Array.from(select.options).forEach(opt => {
           const sm = window.shippingMethods.find(s => s.id === opt.value);
           if (sm) {
-            opt.textContent = isFreeShipping ? `${sm.name} (NT$ 0 免運)` : `${sm.name} (${window.formatNT(sm.fee)})`;
+            opt.textContent = isFreeShipping ? `${sm.name} (NT$ 0 免運)` : `${sm.name} (${formatNT(sm.fee)})`;
           }
         });
       }
@@ -1803,28 +1886,39 @@
       const shippingBar = document.getElementById('cart-shipping-bar');
       const shippingStatus = document.getElementById('cart-shipping-status');
       
-      if (subtotal === 0) {
-        shippingBar.style.width = '0%';
-        shippingStatus.textContent = `全館滿 ${window.formatNT(threshold)} 享免運`;
-      } else if (isFreeShipping) {
-        shippingBar.style.width = '100%';
-        shippingStatus.innerHTML = '<span class="text-[#8c7759] font-bold">已達免運門檻</span>';
-      } else {
-        const pct = Math.min(100, Math.round((subtotal / threshold) * 100));
-        shippingBar.style.width = `${pct}%`;
-        const diff = threshold - subtotal;
-        shippingStatus.textContent = `還差 ${window.formatNT(diff)} 即可享免運`;
+      if (shippingBar && shippingStatus) {
+        if (subtotal === 0) {
+          shippingBar.style.width = '0%';
+          shippingStatus.textContent = `全館滿 ${formatNT(threshold)} 享免運`;
+        } else if (isFreeShipping) {
+          shippingBar.style.width = '100%';
+          shippingStatus.innerHTML = '<span class="text-[#8c7759] font-bold">已達免運門檻</span>';
+        } else {
+          const pct = Math.min(100, Math.round((subtotal / threshold) * 100));
+          shippingBar.style.width = `${pct}%`;
+          const diff = threshold - subtotal;
+          shippingStatus.textContent = `還差 ${formatNT(diff)} 即可享免運`;
+        }
       }
 
-      document.getElementById('cart-subtotal-counter').textContent = window.formatNT(subtotal);
-      document.getElementById('summary-subtotal').textContent = window.formatNT(subtotal);
-      document.getElementById('summary-shipping').textContent = actualShippingFee === 0 ? 'NT$ 0 (免運)' : window.formatNT(actualShippingFee);
-      document.getElementById('summary-total').textContent = window.formatNT(grandTotal);
-    };
+      const counter = document.getElementById('cart-subtotal-counter');
+      const subCounter = document.getElementById('summary-subtotal');
+      const shipCounter = document.getElementById('summary-shipping');
+      const totCounter = document.getElementById('summary-total');
 
-    window.togglePaymentNotice = function() {
-      const payMethod = document.getElementById('cust-payment').value;
+      if (counter) counter.textContent = formatNT(subtotal);
+      if (subCounter) subCounter.textContent = formatNT(subtotal);
+      if (shipCounter) shipCounter.textContent = actualShippingFee === 0 ? 'NT$ 0 (免運)' : formatNT(actualShippingFee);
+      if (totCounter) totCounter.textContent = formatNT(grandTotal);
+    }
+    window.updateCartTotals = updateCartTotals;
+
+    function togglePaymentNotice() {
+      const paySelect = document.getElementById('cust-payment');
+      if (!paySelect) return;
+      const payMethod = paySelect.value;
       const box = document.getElementById('payment-info-box');
+      if (!box) return;
       
       if (payMethod === '銀行轉帳') {
         box.innerHTML = `
@@ -1843,9 +1937,10 @@
           <div class="leading-relaxed text-[#282522] whitespace-pre-line break-words w-full overflow-hidden">${noticeText}</div>
         `;
       }
-    };
+    }
+    window.togglePaymentNotice = togglePaymentNotice;
 
-    window.processCheckout = function() {
+    function processCheckout() {
       if (window.cart.length === 0) {
         showToast('購物車是空的，請先挑選商品');
         return;
@@ -1860,7 +1955,7 @@
       const notes = document.getElementById('cust-notes').value.trim();
 
       if (!name || !phone || !address) {
-        showToast('請完整填寫姓名、電話與取貨地址/門市');
+        showToast('請完整填寫姓名、電話與取貨地址');
         return;
       }
 
@@ -1887,7 +1982,7 @@
         date: orderDate,
         name,
         phone,
-        shipping: `${shipMethodObj.name} (${actualShippingFee === 0 ? 'NT$ 0 免運' : window.formatNT(baseShippingFee)})`,
+        shipping: `${shipMethodObj.name} (${actualShippingFee === 0 ? 'NT$ 0 免運' : formatNT(baseShippingFee)})`,
         address,
         payment,
         notes,
@@ -1901,14 +1996,15 @@
       window.orders.unshift(newOrder);
       saveToCloud();
 
+      hasDownloadedReceipt = false;
       populateReceiptCard(newOrder);
       closeCart();
-      clearCart();
 
-      document.getElementById('rc-modal-close-x').classList.add('hidden');
-      document.getElementById('receipt-modal').classList.remove('hidden');
+      const rcModal = document.getElementById('receipt-modal');
+      if (rcModal) rcModal.classList.remove('hidden');
       showToast('訂單已成立！明細圖卡已生成');
-    };
+    }
+    window.processCheckout = processCheckout;
 
     function populateReceiptCard(order) {
       document.getElementById('rc-shop-name').textContent = window.settings.shopName;
@@ -1938,16 +2034,16 @@
             <div class="font-bold text-xs text-[#282522] leading-snug">${item.name} ${item.isStar ? '<span class="text-[#af8e28] drop-shadow-sm">★</span>' : ''}</div>
             <div class="text-[#524d46] text-[10px] mt-0.5 leading-tight">${item.roast || ''} ｜ ${item.process || ''} ｜ ${item.weight || ''}</div>
           </td>
-          <td class="py-2.5 px-2 text-center text-xs text-[#282522] align-middle">${window.formatNT(item.price)}</td>
+          <td class="py-2.5 px-2 text-center text-xs text-[#282522] align-middle">${formatNT(item.price)}</td>
           <td class="py-2.5 px-2 text-center text-xs text-[#282522] font-bold align-middle">${item.qty}</td>
-          <td class="py-2.5 px-2.5 text-right text-xs text-[#282522] font-bold align-middle">${window.formatNT(item.price * item.qty)}</td>
+          <td class="py-2.5 px-2.5 text-right text-xs text-[#282522] font-bold align-middle">${formatNT(item.price * item.qty)}</td>
         `;
         tbody.appendChild(tr);
       });
 
-      document.getElementById('rc-subtotal').textContent = window.formatNT(order.subtotal);
-      document.getElementById('rc-shipping-fee').textContent = order.shippingFee === 0 ? 'NT$ 0 (免運)' : window.formatNT(order.shippingFee);
-      document.getElementById('rc-grand-total').textContent = window.formatNT(order.grandTotal);
+      document.getElementById('rc-subtotal').textContent = formatNT(order.subtotal);
+      document.getElementById('rc-shipping-fee').textContent = order.shippingFee === 0 ? 'NT$ 0 (免運)' : formatNT(order.shippingFee);
+      document.getElementById('rc-grand-total').textContent = formatNT(order.grandTotal);
 
       const paymentBox = document.getElementById('rc-payment-details-content');
       if (order.payment === '銀行轉帳') {
@@ -1964,10 +2060,12 @@
         `;
       }
     }
+    window.populateReceiptCard = populateReceiptCard;
 
-    window.downloadReceiptPNG = function() {
+    function downloadReceiptPNG() {
       const cardElement = document.getElementById('receipt-card-element');
       const btn = document.getElementById('download-png-btn');
+      if (!cardElement || !btn) return;
       
       btn.disabled = true;
       btn.textContent = '產生高畫質圖卡中...';
@@ -1998,7 +2096,8 @@
       }).then(async canvas => {
         document.body.removeChild(clone);
 
-        const orderNum = document.getElementById('rc-order-id').textContent;
+        const orderNumElem = document.getElementById('rc-order-id');
+        const orderNum = orderNumElem ? orderNumElem.textContent : 'XC-ORDER';
         const fileName = `XUAN_COFFEE_訂單_${orderNum}.png`;
 
         canvas.toBlob(async (blob) => {
@@ -2018,9 +2117,10 @@
             link.href = dataUrl;
             link.click();
 
+            hasDownloadedReceipt = true;
             btn.disabled = false;
-            btn.textContent = '下載訂單分享給店長';
-            showToast('訂單圖卡已成功下載！');
+            btn.textContent = '已成功下載圖卡';
+            showToast('訂單圖卡已成功下載！可關閉視窗或點擊「返回繼續購物」');
             return;
           }
 
@@ -2033,10 +2133,11 @@
                 title: 'XUAN COFFEE 訂單',
                 text: '這是我的 XUAN COFFEE 訂單明細圖卡'
               });
+              hasDownloadedReceipt = true;
               btn.disabled = false;
-              btn.textContent = '下載訂單分享給店長';
+              btn.textContent = '已分享 / 下載圖卡';
               clearCart();
-              closeReceiptModal();
+              forceCloseReceiptModal();
               showToast('請在分享選單中選擇「儲存影像」即可存入相簿！');
               return;
             } catch (shareErr) {
@@ -2055,8 +2156,9 @@
           link.href = dataUrl;
           link.click();
 
+          hasDownloadedReceipt = true;
           btn.disabled = false;
-          btn.textContent = '下載訂單分享給店長';
+          btn.textContent = '已成功下載圖卡';
         }, 'image/png');
 
       }).catch(err => {
@@ -2067,9 +2169,8 @@
         btn.textContent = '下載訂單分享給店長';
         showToast('產圖失敗，請重試');
       });
-    };
-
-    let pendingDeleteOrderId = null;
+    }
+    window.downloadReceiptPNG = downloadReceiptPNG;
 
     function setupTripleClickTriggers() {
       const logoTrigger = document.getElementById('brand-logo-trigger');
@@ -2098,74 +2199,92 @@
       if (logoTrigger) logoTrigger.addEventListener('click', handleTripleClick);
       if (footerTrigger) footerTrigger.addEventListener('click', handleTripleClick);
     }
+    window.setupTripleClickTriggers = setupTripleClickTriggers;
 
-    window.openAdminAuthModal = function() {
+    function openAdminAuthModal() {
       const passInput = document.getElementById('admin-password-input');
-      passInput.value = '';
-      document.getElementById('admin-auth-modal').classList.remove('hidden');
+      if (passInput) passInput.value = '';
+      const modal = document.getElementById('admin-auth-modal');
+      if (modal) modal.classList.remove('hidden');
       setTimeout(() => {
-        passInput.focus();
+        if (passInput) passInput.focus();
       }, 100);
-    };
+    }
+    window.openAdminAuthModal = openAdminAuthModal;
 
-    window.closeAdminAuthModal = function() {
-      document.getElementById('admin-auth-modal').classList.add('hidden');
+    function closeAdminAuthModal() {
+      const modal = document.getElementById('admin-auth-modal');
+      if (modal) modal.classList.add('hidden');
       if (document.activeElement && typeof document.activeElement.blur === 'function') {
         document.activeElement.blur();
       }
-    };
+    }
+    window.closeAdminAuthModal = closeAdminAuthModal;
 
-    window.handleAdminLogin = function(e) {
+    function handleAdminLogin(e) {
       if (e) e.preventDefault();
-      const inputPass = document.getElementById('admin-password-input').value;
+      const passInput = document.getElementById('admin-password-input');
+      const inputPass = passInput ? passInput.value : '';
       if (inputPass === window.settings.adminPassword) {
         closeAdminAuthModal();
         openAdminPanel();
         showToast('後台登入成功');
       } else {
         showToast('密碼錯誤！請重試');
-        document.getElementById('admin-password-input').focus();
+        if (passInput) passInput.focus();
       }
-    };
+    }
+    window.handleAdminLogin = handleAdminLogin;
 
-    window.openAdminPanel = function() {
+    function openAdminPanel() {
       window.hasUnsavedChanges = false;
-      document.getElementById('admin-panel').classList.remove('hidden');
+      const panel = document.getElementById('admin-panel');
+      if (panel) panel.classList.remove('hidden');
       renderAdminShippingMethods();
       renderAdminProductsList();
       renderAdminCategoriesList();
       populateFilterShippingOptions();
       renderAdminOrdersTable();
       populateCategoryDropdown();
-    };
+    }
+    window.openAdminPanel = openAdminPanel;
 
-    window.triggerAdminExitGuard = function() {
+    function triggerAdminExitGuard() {
       if (!window.hasUnsavedChanges) {
-        document.getElementById('admin-panel').classList.add('hidden');
+        const panel = document.getElementById('admin-panel');
+        if (panel) panel.classList.add('hidden');
         showToast('已離開管理後台');
       } else {
-        document.getElementById('admin-exit-modal').classList.remove('hidden');
+        const modal = document.getElementById('admin-exit-modal');
+        if (modal) modal.classList.remove('hidden');
       }
-    };
+    }
+    window.triggerAdminExitGuard = triggerAdminExitGuard;
 
-    window.closeAdminExitModal = function() {
-      document.getElementById('admin-exit-modal').classList.add('hidden');
-    };
+    function closeAdminExitModal() {
+      const modal = document.getElementById('admin-exit-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+    window.closeAdminExitModal = closeAdminExitModal;
 
-    window.exitAdminSaveAndClose = function() {
+    function exitAdminSaveAndClose() {
       saveAllAdminSettings();
       closeAdminExitModal();
-      document.getElementById('admin-panel').classList.add('hidden');
-    };
+      const panel = document.getElementById('admin-panel');
+      if (panel) panel.classList.add('hidden');
+    }
+    window.exitAdminSaveAndClose = exitAdminSaveAndClose;
 
-    window.exitAdminDiscardAndClose = function() {
+    function exitAdminDiscardAndClose() {
       closeAdminExitModal();
       window.hasUnsavedChanges = false;
-      document.getElementById('admin-panel').classList.add('hidden');
+      const panel = document.getElementById('admin-panel');
+      if (panel) panel.classList.add('hidden');
       showToast('已離開管理後台');
-    };
+    }
+    window.exitAdminDiscardAndClose = exitAdminDiscardAndClose;
 
-    window.switchAdminTab = function(tabKey) {
+    function switchAdminTab(tabKey) {
       document.querySelectorAll('.admin-tab-btn').forEach(btn => {
         btn.classList.remove('border-[#282522]', 'text-[#282522]', 'font-semibold');
         btn.classList.add('border-transparent', 'text-[#787268]');
@@ -2179,9 +2298,10 @@
         activeBtn.classList.remove('border-transparent', 'text-[#787268]');
         activeSec.classList.remove('hidden');
       }
-    };
+    }
+    window.switchAdminTab = switchAdminTab;
 
-    window.saveAllAdminSettings = function() {
+    function saveAllAdminSettings() {
       window.settings.shopName = document.getElementById('cfg-shop-name').value.trim() || 'XUAN COFFEE';
       window.settings.shopSubtitle = document.getElementById('cfg-shop-subtitle').value.trim() || '自家烘焙珈琲豆選';
       window.settings.footerText = document.getElementById('cfg-footer-text').value.trim() || '堅持自家精心烘焙 ‧ 展現產區獨特風味風土 ‧ 讓每一口珈琲都是回味無窮的享受';
@@ -2200,9 +2320,10 @@
       renderProductsGrid();
       window.hasUnsavedChanges = false;
       showToast('已成功儲存全站設定並發佈至雲端！');
-    };
+    }
+    window.saveAllAdminSettings = saveAllAdminSettings;
 
-    window.updateAdminPassword = function() {
+    function updateAdminPassword() {
       const newPass = document.getElementById('cfg-admin-pass').value.trim();
       if (!newPass) {
         showToast('請輸入有效密碼');
@@ -2211,7 +2332,8 @@
       window.settings.adminPassword = newPass;
       saveToCloud();
       showToast('後台登入密碼已成功更新！');
-    };
+    }
+    window.updateAdminPassword = updateAdminPassword;
 
     function populateFilterShippingOptions() {
       const select = document.getElementById('filter-order-shipping');
@@ -2227,7 +2349,7 @@
       if (cur) select.value = cur;
     }
 
-    window.resetOrderFilters = function() {
+    function resetOrderFilters() {
       const statusSelect = document.getElementById('filter-order-status');
       const startDateInput = document.getElementById('filter-order-date-start');
       const endDateInput = document.getElementById('filter-order-date-end');
@@ -2242,9 +2364,10 @@
 
       renderAdminOrdersTable();
       showToast('已重置所有條件');
-    };
+    }
+    window.resetOrderFilters = resetOrderFilters;
 
-    window.toggleOrderStatus = function(orderId) {
+    function toggleOrderStatus(orderId) {
       const order = window.orders.find(o => o.orderId === orderId);
       if (!order) return;
 
@@ -2252,20 +2375,26 @@
       saveToCloud();
       renderAdminOrdersTable();
       showToast(`訂單 ${orderId} 已標示為「${order.status}」`);
-    };
+    }
+    window.toggleOrderStatus = toggleOrderStatus;
 
-    window.confirmDeleteOrder = function(orderId) {
+    function confirmDeleteOrder(orderId) {
       pendingDeleteOrderId = orderId;
-      document.getElementById('delete-order-target-id').textContent = orderId;
-      document.getElementById('delete-order-modal').classList.remove('hidden');
-    };
+      const targetElem = document.getElementById('delete-order-target-id');
+      if (targetElem) targetElem.textContent = orderId;
+      const modal = document.getElementById('delete-order-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+    window.confirmDeleteOrder = confirmDeleteOrder;
 
-    window.closeDeleteOrderModal = function() {
+    function closeDeleteOrderModal() {
       pendingDeleteOrderId = null;
-      document.getElementById('delete-order-modal').classList.add('hidden');
-    };
+      const modal = document.getElementById('delete-order-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+    window.closeDeleteOrderModal = closeDeleteOrderModal;
 
-    window.executeDeleteOrder = function() {
+    function executeDeleteOrder() {
       if (!pendingDeleteOrderId) return;
       const targetId = pendingDeleteOrderId;
       window.orders = window.orders.filter(o => o.orderId !== targetId);
@@ -2273,9 +2402,10 @@
       closeDeleteOrderModal();
       renderAdminOrdersTable();
       showToast(`已成功刪除訂單 ${targetId}`);
-    };
+    }
+    window.executeDeleteOrder = executeDeleteOrder;
 
-    window.renderAdminOrdersTable = function() {
+    function renderAdminOrdersTable() {
       const tbody = document.getElementById('admin-orders-table-body');
       const mobileContainer = document.getElementById('admin-orders-mobile-cards');
       const countElem = document.getElementById('admin-order-count');
@@ -2324,7 +2454,7 @@
         return true;
       });
 
-      countElem.textContent = filteredOrders.length;
+      if (countElem) countElem.textContent = filteredOrders.length;
 
       if (filteredOrders.length === 0) {
         if (emptyMsg) emptyMsg.classList.remove('hidden');
@@ -2355,7 +2485,7 @@
                 <span class="px-2 py-0.5 border text-[10px] font-bold rounded-xs ${statusBadgeClass}">
                   ${ordStatus}
                 </span>
-                <span class="text-sm font-bold text-[#282522] block">${window.formatNT(ord.grandTotal)}</span>
+                <span class="text-sm font-bold text-[#282522] block">${formatNT(ord.grandTotal)}</span>
               </div>
             </div>
 
@@ -2426,7 +2556,7 @@
               ${ord.notes ? `<div class="text-[10px] text-[#787268] mt-1 italic">備註: ${ord.notes}</div>` : ''}
             </td>
             <td class="py-3 px-3.5 text-right font-bold text-[#282522] text-sm">
-              ${window.formatNT(ord.grandTotal)}
+              ${formatNT(ord.grandTotal)}
             </td>
             <td class="py-3 px-3.5 text-center space-y-1.5">
               <button onclick="toggleOrderStatus('${ord.orderId}')" class="w-full px-2.5 py-1 ${isShipped ? 'bg-white border border-[#282522] text-[#282522]' : 'bg-[#282522] text-[#f5f3ef]'} text-[11px] font-medium transition-colors">
@@ -2440,9 +2570,10 @@
           tbody.appendChild(tr);
         }
       });
-    };
+    }
+    window.renderAdminOrdersTable = renderAdminOrdersTable;
 
-    window.populateCategoryDropdown = function() {
+    function populateCategoryDropdown() {
       const select = document.getElementById('prod-category');
       if (!select) return;
       select.innerHTML = '';
@@ -2452,19 +2583,26 @@
         opt.textContent = cat;
         select.appendChild(opt);
       });
-    };
+    }
+    window.populateCategoryDropdown = populateCategoryDropdown;
 
-    window.resetProductForm = function() {
-      document.getElementById('product-crud-form').reset();
+    function resetProductForm() {
+      const form = document.getElementById('product-crud-form');
+      if (form) form.reset();
       document.getElementById('prod-edit-id').value = '';
-      document.getElementById('prod-file-name').textContent = '未選擇檔案';
-      document.getElementById('product-form-title').textContent = '新增商品品項';
-      document.getElementById('save-prod-btn').textContent = '新增商品';
-      document.getElementById('cancel-edit-btn').classList.add('hidden');
-    };
+      const nameElem = document.getElementById('prod-file-name');
+      if (nameElem) nameElem.textContent = '未選擇檔案';
+      const titleElem = document.getElementById('product-form-title');
+      if (titleElem) titleElem.textContent = '新增商品品項';
+      const btn = document.getElementById('save-prod-btn');
+      if (btn) btn.textContent = '新增商品';
+      const cancelBtn = document.getElementById('cancel-edit-btn');
+      if (cancelBtn) cancelBtn.classList.add('hidden');
+    }
+    window.resetProductForm = resetProductForm;
 
-    window.handleProductFormSubmit = function(e) {
-      e.preventDefault();
+    function handleProductFormSubmit(e) {
+      if (e) e.preventDefault();
       const editId = document.getElementById('prod-edit-id').value;
       const category = document.getElementById('prod-category').value;
       const origin = document.getElementById('prod-origin').value.trim();
@@ -2505,9 +2643,10 @@
       resetProductForm();
       renderAdminProductsList();
       renderProductsGrid();
-    };
+    }
+    window.handleProductFormSubmit = handleProductFormSubmit;
 
-    window.editProduct = function(id) {
+    function editProduct(id) {
       const p = window.products.find(item => item.id === id);
       if (!p) return;
 
@@ -2535,15 +2674,19 @@
       document.getElementById('modal-file-name').textContent = p.image ? '已有設定圖片' : '未選擇檔案';
       document.getElementById('modal-prod-star').checked = !!p.isStar;
 
-      document.getElementById('edit-product-modal').classList.remove('hidden');
-    };
+      const modal = document.getElementById('edit-product-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+    window.editProduct = editProduct;
 
-    window.closeEditProductModal = function() {
-      document.getElementById('edit-product-modal').classList.add('hidden');
-    };
+    function closeEditProductModal() {
+      const modal = document.getElementById('edit-product-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+    window.closeEditProductModal = closeEditProductModal;
 
-    window.saveEditedProductModal = function(e) {
-      e.preventDefault();
+    function saveEditedProductModal(e) {
+      if (e) e.preventDefault();
       const editId = document.getElementById('modal-prod-id').value;
       const category = document.getElementById('modal-prod-category').value;
       const origin = document.getElementById('modal-prod-origin').value.trim();
@@ -2566,17 +2709,19 @@
         closeEditProductModal();
         showToast(`已成功儲存商品「${name}」的修改！`);
       }
-    };
+    }
+    window.saveEditedProductModal = saveEditedProductModal;
 
-    window.deleteProduct = function(id) {
+    function deleteProduct(id) {
       window.products = window.products.filter(p => p.id !== id);
       saveToCloud();
       renderAdminProductsList();
       renderProductsGrid();
       showToast('商品已刪除');
-    };
+    }
+    window.deleteProduct = deleteProduct;
 
-    window.moveProduct = function(index, delta) {
+    function moveProduct(index, delta) {
       const newIndex = index + delta;
       if (newIndex < 0 || newIndex >= window.products.length) return;
       const temp = window.products[index];
@@ -2585,9 +2730,10 @@
       saveToCloud();
       renderAdminProductsList();
       renderProductsGrid();
-    };
+    }
+    window.moveProduct = moveProduct;
 
-    window.renderAdminProductsList = function() {
+    function renderAdminProductsList() {
       const container = document.getElementById('admin-products-list');
       if (!container) return;
       container.innerHTML = '';
@@ -2615,7 +2761,7 @@
             <span class="text-[#787268] cursor-grab font-bold">::</span>
             <span class="px-2 py-0.5 bg-[#282522] text-[#f5f3ef] text-[10px] uppercase font-mono">${p.category}</span>
             <span class="font-bold text-[#282522] truncate">${p.name} ${p.isStar ? '<span class="text-[#af8e28] drop-shadow-sm">★</span>' : ''}</span>
-            <span class="text-[#524d46]">(${window.formatNT(p.price)})</span>
+            <span class="text-[#524d46]">(${formatNT(p.price)})</span>
           </div>
 
           <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
@@ -2627,9 +2773,10 @@
         `;
         container.appendChild(item);
       });
-    };
+    }
+    window.renderAdminProductsList = renderAdminProductsList;
 
-    window.renderAdminCategoriesList = function() {
+    function renderAdminCategoriesList() {
       const container = document.getElementById('admin-categories-list');
       if (!container) return;
       container.innerHTML = '';
@@ -2657,9 +2804,10 @@
         }
         container.appendChild(card);
       });
-    };
+    }
+    window.renderAdminCategoriesList = renderAdminCategoriesList;
 
-    window.moveCategory = function(index, delta) {
+    function moveCategory(index, delta) {
       const newIndex = index + delta;
       if (newIndex <= 0 || newIndex >= window.categories.length) return;
       const temp = window.categories[index];
@@ -2670,23 +2818,28 @@
       renderAdminCategoriesList();
       populateCategoryDropdown();
       showToast('分類順序已更新');
-    };
+    }
+    window.moveCategory = moveCategory;
 
-    window.editCategory = function(index) {
+    function editCategory(index) {
       const oldName = window.categories[index];
       if (oldName === '全部') return;
 
       document.getElementById('edit-cat-index').value = index;
       document.getElementById('edit-cat-input').value = oldName;
-      document.getElementById('edit-category-modal').classList.remove('hidden');
-    };
+      const modal = document.getElementById('edit-category-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+    window.editCategory = editCategory;
 
-    window.closeEditCategoryModal = function() {
-      document.getElementById('edit-category-modal').classList.add('hidden');
-    };
+    function closeEditCategoryModal() {
+      const modal = document.getElementById('edit-category-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+    window.closeEditCategoryModal = closeEditCategoryModal;
 
-    window.saveEditedCategory = function(e) {
-      e.preventDefault();
+    function saveEditedCategory(e) {
+      if (e) e.preventDefault();
       const index = Number(document.getElementById('edit-cat-index').value);
       const oldName = window.categories[index];
       const newName = document.getElementById('edit-cat-input').value.trim();
@@ -2717,10 +2870,12 @@
       renderProductsGrid();
       closeEditCategoryModal();
       showToast(`分類名稱已修改為：「${newName}」`);
-    };
+    }
+    window.saveEditedCategory = saveEditedCategory;
 
-    window.handleAddCategory = function() {
+    function handleAddCategory() {
       const input = document.getElementById('new-cat-input');
+      if (!input) return;
       const name = input.value.trim();
 
       if (!name) {
@@ -2741,9 +2896,10 @@
 
       input.value = '';
       showToast(`已新增分類：「${name}」`);
-    };
+    }
+    window.handleAddCategory = handleAddCategory;
 
-    window.deleteCategory = function(catName) {
+    function deleteCategory(catName) {
       const count = window.products.filter(p => p.category === catName).length;
       if (count > 0) {
         showToast(`無法刪除！此分類下尚有 ${count} 項商品`);
@@ -2758,9 +2914,10 @@
       populateCategoryDropdown();
       renderProductsGrid();
       showToast('分類已刪除');
-    };
+    }
+    window.deleteCategory = deleteCategory;
 
-    window.renderAdminShippingMethods = function() {
+    function renderAdminShippingMethods() {
       const container = document.getElementById('admin-shipping-list');
       if (!container) return;
       container.innerHTML = '';
@@ -2785,11 +2942,13 @@
         `;
         container.appendChild(row);
       });
-    };
+    }
+    window.renderAdminShippingMethods = renderAdminShippingMethods;
 
-    window.handleAddShippingMethod = function() {
+    function handleAddShippingMethod() {
       const nameInput = document.getElementById('new-ship-name');
       const feeInput = document.getElementById('new-ship-fee');
+      if (!nameInput || !feeInput) return;
 
       const name = nameInput.value.trim();
       const fee = Number(feeInput.value || 0);
@@ -2809,9 +2968,10 @@
       nameInput.value = '';
       feeInput.value = '';
       showToast(`已新增物流方式：「${name}」`);
-    };
+    }
+    window.handleAddShippingMethod = handleAddShippingMethod;
 
-    window.updateShippingFee = function(id, newFee) {
+    function updateShippingFee(id, newFee) {
       const target = window.shippingMethods.find(s => s.id === id);
       if (target) {
         target.fee = Number(newFee || 0);
@@ -2819,9 +2979,10 @@
         renderShippingSelectOptions();
         showToast(`已更新「${target.name}」運費金額`);
       }
-    };
+    }
+    window.updateShippingFee = updateShippingFee;
 
-    window.deleteShippingMethod = function(id) {
+    function deleteShippingMethod(id) {
       if (window.shippingMethods.length <= 1) {
         showToast('無法刪除！系統至少需保留一種物流選項');
         return;
@@ -2833,9 +2994,10 @@
       renderAdminShippingMethods();
       renderShippingSelectOptions();
       showToast(`已刪除「${target ? target.name : '物流選項'}」`);
-    };
+    }
+    window.deleteShippingMethod = deleteShippingMethod;
 
-    window.exportOrdersToCSV = function() {
+    function exportOrdersToCSV() {
       if (window.orders.length === 0) {
         showToast('尚無任何訂單紀錄可供匯出');
         return;
@@ -2857,9 +3019,10 @@
       link.click();
 
       showToast('訂單 CSV 報表匯出成功！');
-    };
+    }
+    window.exportOrdersToCSV = exportOrdersToCSV;
 
-    window.exportFullConfigJSON = function() {
+    function exportFullConfigJSON() {
       const fullData = {
         products: window.products,
         categories: window.categories,
@@ -2877,9 +3040,10 @@
       link.click();
       link.remove();
       showToast('全站 JSON 備份檔下載完成');
-    };
+    }
+    window.exportFullConfigJSON = exportFullConfigJSON;
 
-    window.importFullConfigJSON = function(e) {
+    function importFullConfigJSON(e) {
       const file = e.target.files[0];
       if (!file) return;
 
@@ -2910,7 +3074,24 @@
         }
       };
       reader.readAsText(file);
-    };
+    }
+    window.importFullConfigJSON = importFullConfigJSON;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      applySettingsToUI();
+      renderShippingSelectOptions();
+      renderCategoryTabs();
+      renderProductsGrid();
+      updateCartBadge();
+      
+      initFirebaseSync();
+      setupTripleClickTriggers();
+      setupAdminLoginEnterKey();
+
+      window.addEventListener('resize', () => {
+        if (typeof window.updateCategoryScrollIndicators === 'function') window.updateCategoryScrollIndicators();
+      });
+    });
   </script>
 </body>
 </html>
