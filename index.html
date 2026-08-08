@@ -78,7 +78,6 @@
       scroll-behavior: smooth;
     }
 
-    /* 防止 iOS / Android 點擊輸入框時畫面縮放，優化文字邊界與輸入體驗 */
     @media (max-width: 640px) {
       input[type="text"],
       input[type="tel"],
@@ -100,7 +99,6 @@
       }
     }
 
-    /* 品牌風格化 Date Picker */
     input[type="date"]::-webkit-calendar-picker-indicator {
       cursor: pointer;
       filter: opacity(0.6);
@@ -197,7 +195,7 @@
     </div>
 
     <!-- Products Grid Container -->
-    <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
+    <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10 transition-opacity duration-300">
       <!-- Dynamic Products Cards Rendered Here -->
     </div>
 
@@ -295,11 +293,11 @@
           <div class="space-y-1.5">
             <div class="flex gap-2">
               <input type="text" id="cust-address" required placeholder="請填寫超商門市名稱與店號，或宅配完整地址" class="flex-1 px-3 py-2 text-xs bg-white border border-[#d8d2c8] focus:border-[#282522] outline-none transition-all">
-              <button type="button" onclick="openStoreLocatorModal()" class="px-3 py-2 bg-[#8c7759] hover:bg-[#282522] text-white text-xs font-serif tracking-wider shrink-0 transition-colors">
-                尋找門市
+              <button type="button" onclick="openStoreLocatorModal()" class="px-3 py-2 bg-[#8c7759] hover:bg-[#282522] text-white text-xs font-serif tracking-wider shrink-0 transition-colors flex items-center gap-1">
+                <span>🏪</span> <span>尋找門市</span>
               </button>
             </div>
-            <p class="text-[10px] text-[#787268]">若選超商取貨，可點右側按鈕查詢門市後填入</p>
+            <p class="text-[10px] text-[#787268]">選 7-11 或全家取貨時，點選「尋找門市」即可快速帶入選取的門市！</p>
           </div>
         </div>
 
@@ -453,41 +451,64 @@
     </div>
   </div>
 
-  <!-- Store Locator Assistant Modal -->
-  <div id="store-locator-modal" class="fixed inset-0 z-50 bg-[#282522]/85 flex items-center justify-center p-4 hidden">
-    <div class="bg-[#f5f3ef] text-[#282522] max-w-md w-full p-6 border border-[#d8d2c8] shadow-2xl space-y-5 font-serif">
+  <!-- Store Locator Assistant Modal (Root Level Modal) -->
+  <div id="store-locator-modal" class="fixed inset-0 z-50 bg-[#282522]/85 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 hidden overflow-y-auto">
+    <div class="bg-[#f5f3ef] text-[#282522] max-w-md w-full p-5 sm:p-6 border border-[#d8d2c8] shadow-2xl space-y-5 font-serif my-auto">
       <div class="flex items-center justify-between pb-3 border-b border-[#e4e0d8]">
         <div>
           <span class="text-[10px] uppercase text-[#787268] tracking-widest block">Store Locator</span>
-          <h3 class="font-bold text-base text-[#282522]">超商取貨門市查詢助手</h3>
+          <h3 class="font-bold text-base sm:text-lg text-[#282522]">超商取貨門市選擇助手</h3>
         </div>
-        <button onclick="closeStoreLocatorModal()" class="text-xl font-light text-[#787268] hover:text-[#282522] p-1">×</button>
+        <button type="button" onclick="closeStoreLocatorModal()" class="text-2xl font-light text-[#787268] hover:text-[#282522] p-1 leading-none">×</button>
       </div>
 
       <p class="text-xs text-[#524d46] leading-relaxed">
-        請點擊下方按鈕前往超商官方地圖查詢門市，複製「<span class="font-bold text-[#282522]">門市名稱與店號</span>」後貼回結帳地址欄位即可！
+        請選擇超商種類，點擊前往官方地圖查門市，將查到的「<span class="font-bold text-[#282522]">超商種類、門市名稱與店號</span>」貼在下方帶入結帳表單：
       </p>
 
+      <!-- Store Maps Links -->
       <div class="grid grid-cols-2 gap-3">
-        <a href="https://emap.pcsc.com.tw/" target="_blank" rel="noopener noreferrer" class="p-3 bg-white border border-[#d8d2c8] hover:border-[#282522] text-center transition-colors flex flex-col items-center justify-center gap-1">
-          <span class="font-bold text-xs text-[#006039]">7-11 統一超商地圖</span>
-          <span class="text-[10px] text-[#787268]">點擊前往查詢 ↗</span>
+        <a href="https://emap.pcsc.com.tw/" target="_blank" rel="noopener noreferrer" class="p-3 bg-white border border-[#d8d2c8] hover:border-[#006039] text-center transition-all flex flex-col items-center justify-center gap-1 shadow-xs group">
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-full bg-[#006039]"></span>
+            <span class="font-bold text-xs text-[#006039]">7-11 統一超商</span>
+          </div>
+          <span class="text-[10px] text-[#787268] group-hover:underline">打開地圖查詢 ↗</span>
         </a>
-        <a href="https://www.family.com.tw/Marketing/Map" target="_blank" rel="noopener noreferrer" class="p-3 bg-white border border-[#d8d2c8] hover:border-[#282522] text-center transition-colors flex flex-col items-center justify-center gap-1">
-          <span class="font-bold text-xs text-[#004f9f]">全家便利商店地圖</span>
-          <span class="text-[10px] text-[#787268]">點擊前往查詢 ↗</span>
+        <a href="https://www.family.com.tw/Marketing/Map" target="_blank" rel="noopener noreferrer" class="p-3 bg-white border border-[#d8d2c8] hover:border-[#004f9f] text-center transition-all flex flex-col items-center justify-center gap-1 shadow-xs group">
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-full bg-[#004f9f]"></span>
+            <span class="font-bold text-xs text-[#004f9f]">全家便利商店</span>
+          </div>
+          <span class="text-[10px] text-[#787268] group-hover:underline">打開地圖查詢 ↗</span>
         </a>
       </div>
 
-      <div class="pt-2">
-        <label class="block text-xs font-semibold mb-1 text-[#282522]">查好後請在此貼上門市資訊：</label>
-        <input type="text" id="quick-store-input" placeholder="例如：7-11 欣漢華門市 (店號: 123456)" class="w-full px-3 py-2 text-xs bg-white border border-[#d8d2c8] focus:border-[#282522] outline-none mb-3">
-        <div class="flex gap-2">
-          <button type="button" onclick="closeStoreLocatorModal()" class="w-1/2 py-2.5 border border-[#282522] text-[#282522] hover:bg-[#ebe7e0] text-xs uppercase">
+      <!-- Quick Store Filler Form -->
+      <div class="pt-2 border-t border-[#e4e0d8] space-y-3">
+        <div>
+          <label class="block text-xs font-semibold mb-1 text-[#282522]">1. 選擇超商體系：</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" id="btn-brand-711" onclick="selectStoreBrand('7-11')" class="py-2 px-3 border border-[#282522] bg-[#282522] text-white text-xs font-medium transition-colors text-center">
+              7-11 統一超商
+            </button>
+            <button type="button" id="btn-brand-family" onclick="selectStoreBrand('全家')" class="py-2 px-3 border border-[#d8d2c8] bg-white text-[#282522] hover:bg-[#ebe7e0] text-xs font-medium transition-colors text-center">
+              全家便利商店
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold mb-1 text-[#282522]">2. 輸入門市名稱與店號：</label>
+          <input type="text" id="quick-store-name" placeholder="例如：欣漢華門市 (店號 123456)" class="w-full px-3 py-2 text-xs bg-white border border-[#d8d2c8] focus:border-[#282522] outline-none">
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="closeStoreLocatorModal()" class="w-1/2 py-2.5 border border-[#282522] text-[#282522] hover:bg-[#ebe7e0] text-xs uppercase transition-colors">
             取消
           </button>
-          <button type="button" onclick="applySelectedStore()" class="w-1/2 py-2.5 bg-[#282522] hover:bg-black text-[#f5f3ef] text-xs uppercase font-medium">
-            確認帶入地址
+          <button type="button" onclick="applySelectedStore()" class="w-1/2 py-2.5 bg-[#282522] hover:bg-black text-[#f5f3ef] text-xs uppercase font-medium transition-all shadow-sm">
+            確認帶入門市
           </button>
         </div>
       </div>
@@ -779,7 +800,6 @@
               <input type="text" id="prod-notes" autocomplete="off" placeholder="藍莓、花香、佛手柑、水蜜桃" class="w-full px-3 py-2 bg-[#f5f3ef] border border-[#d8d2c8] text-[#282522] text-xs focus:border-[#282522] outline-none">
             </div>
 
-            <!-- Enhanced Product Image Section (URL or Direct Photo Upload) -->
             <div class="sm:col-span-2 md:col-span-3">
               <label class="block text-xs text-[#524d46] mb-1 font-serif font-medium">商品圖片 (可貼上圖片網址或選擇手機/電腦照片上傳)</label>
               <div class="space-y-2">
@@ -1171,6 +1191,7 @@
     </div>
   </div>
 
+  <!-- Application Logic JavaScript -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -1203,7 +1224,6 @@
       }
     };
 
-    // Global Product Photo File Upload Handler
     window.handleProductFileUpload = function(e, targetInputId, fileNameElemId) {
       const file = e.target.files[0];
       if (!file) return;
@@ -1253,12 +1273,13 @@
       { id: 's3', name: '宅配 到府', fee: 100 }
     ];
 
+    // FIX ISSUE 1: Default showPhotos to false to avoid photo glitch/flicker on incognito first-load!
     const DEFAULT_SETTINGS = {
       shopName: 'XUAN COFFEE',
       shopSubtitle: '自家烘焙珈琲豆選',
       footerText: '堅持自家精心烘焙 ‧ 展現產區獨特風味風土 ‧ 讓每一口珈琲都是回味無窮的享受',
       logoUrl: '',
-      showPhotos: true,
+      showPhotos: false,
       showAdminHint: false,
       freeShippingThreshold: 2000,
       bankName: '玉山銀行 808',
@@ -1278,6 +1299,7 @@
     window.activeCategory = '全部';
     window.onlyStarFilter = false;
     window.hasUnsavedChanges = false;
+    window.selectedStoreBrand = '7-11';
 
     let tripleClickCounter = 0;
     let tripleClickTimer = null;
@@ -1376,7 +1398,6 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
-      // 確保一開始就依據 localStorage/預設值設定好 UI，避免任何閃爍或殘影
       applySettingsToUI();
       renderShippingSelectOptions();
       renderCategoryTabs();
@@ -1720,8 +1741,10 @@
       renderCartItems();
     };
 
+    // FIX ISSUE 2: Store locator modal functions cleanly defined and responsive
     window.openStoreLocatorModal = function() {
-      document.getElementById('quick-store-input').value = '';
+      document.getElementById('quick-store-name').value = '';
+      selectStoreBrand('7-11');
       document.getElementById('store-locator-modal').classList.remove('hidden');
     };
 
@@ -1729,19 +1752,34 @@
       document.getElementById('store-locator-modal').classList.add('hidden');
     };
 
+    window.selectStoreBrand = function(brand) {
+      window.selectedStoreBrand = brand;
+      const b711 = document.getElementById('btn-brand-711');
+      const bFam = document.getElementById('btn-brand-family');
+      if (brand === '7-11') {
+        b711.className = "py-2 px-3 border border-[#006039] bg-[#006039] text-white text-xs font-medium transition-colors text-center shadow-xs";
+        bFam.className = "py-2 px-3 border border-[#d8d2c8] bg-white text-[#282522] hover:bg-[#ebe7e0] text-xs font-medium transition-colors text-center";
+      } else {
+        b711.className = "py-2 px-3 border border-[#d8d2c8] bg-white text-[#282522] hover:bg-[#ebe7e0] text-xs font-medium transition-colors text-center";
+        bFam.className = "py-2 px-3 border border-[#004f9f] bg-[#004f9f] text-white text-xs font-medium transition-colors text-center shadow-xs";
+      }
+    };
+
     window.applySelectedStore = function() {
-      const val = document.getElementById('quick-store-input').value.trim();
-      if (!val) {
-        showToast('請先輸入或貼上門市名稱與店號');
+      const storeName = document.getElementById('quick-store-name').value.trim();
+      if (!storeName) {
+        showToast('請填寫門市名稱或店號');
         return;
       }
+      
+      const combinedAddress = `${window.selectedStoreBrand} ${storeName}`;
       const addressInput = document.getElementById('cust-address');
       if (addressInput) {
-        addressInput.value = val;
+        addressInput.value = combinedAddress;
         addressInput.focus();
       }
       closeStoreLocatorModal();
-      showToast('已成功帶入門市資訊！');
+      showToast(`已成功帶入門市：「${combinedAddress}」`);
     };
 
     window.closeCart = function() {
@@ -2091,7 +2129,6 @@
           const dataUrl = canvas.toDataURL('image/png');
           const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 640;
 
-          // 網頁版 (Desktop)：直接觸發 PNG 檔案下載，不跳出分享選單
           if (!isMobile) {
             const link = document.createElement('a');
             link.download = fileName;
@@ -2104,7 +2141,6 @@
             return;
           }
 
-          // 手機版 (Mobile)：優先觸發原生分享選單或長按圖卡彈窗
           const file = new File([blob], fileName, { type: 'image/png' });
 
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
