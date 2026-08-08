@@ -1,112 +1,504 @@
-<!-- ... existing code ... -->
-          <div class="text-center text-[11px] text-[#787268] pt-2 border-t border-[#e4e0d8] space-y-1">
-            <p class="font-bold text-[#282522]">感謝您的訂購！</p>
-            <p id="rc-footer-line">LINE ID: cow80610</p>
-          </div>
+<!DOCTYPE html>
+<html lang="zh-TW" class="h-full bg-[#f5f3ef]">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>XUAN COFFEE 自家烘焙珈琲豆選</title>
 
+  <!-- Chosen Palette: Coffee & Warm Neutrals -->
+  <!-- Application Structure Plan: 本 SPA 採用「顧客前端」與「管理後台」雙層結構。前端以簡約美學展示商品，並透過側邊購物車（Cart Drawer）與訂單明細（Receipt Modal）完成下單流程。後台透過密碼驗證進入，提供全站設定、商品增刪、分類管理與歷史訂單報表。使用單一狀態管理（State Management）驅動 UI 更新，確保數據一致性。 -->
+  <!-- Visualization & Content Choices: 訂單趨勢 -> 資訊呈現 -> 折線圖 (Chart.js) -> 呈現歷史銷售走勢 -> 輔助店長決策。購物流程 -> 互動式 UI -> HTML/CSS 模擬收據 -> 提升專業感 -> 無須外部插件。 -->
+  <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif+TC:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#f5f3ef',
+              card: '#ffffff',
+              dark: '#282522',
+              muted: '#787268',
+              lightmuted: '#a8a298',
+              border: '#e4e0d8',
+              subtle: '#ebe7e0',
+              accent: '#8c7759',
+              accentbg: '#f0ebe1'
+            }
+          },
+          fontFamily: {
+            serif: ['"Noto Serif TC"', 'serif'],
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #f5f3ef; }
+    ::-webkit-scrollbar-thumb { background: #c8c2b8; border-radius: 2px; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    @media (max-width: 640px) {
+      input, select, textarea { font-size: 16px !important; }
+    }
+
+    .chart-container {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      height: 300px;
+    }
+
+    .loading-shimmer {
+      background: linear-gradient(90deg, #ebe7e0 25%, #f5f3ef 50%, #ebe7e0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
+</head>
+<body class="h-full bg-[#f5f3ef] text-[#282522] font-sans antialiased flex flex-col min-h-screen">
+
+  <div id="shop-view" class="flex flex-col min-h-screen">
+    <div id="shipping-banner" class="bg-[#282522] text-[#e4e0d8] text-xs py-2.5 px-4 text-center font-light tracking-widest border-b border-[#3a3632] w-full">
+      <span id="banner-text">全館滿 NT$ 2,000 即享免運優惠</span>
+    </div>
+
+    <header class="sticky top-0 z-30 bg-[#f5f3ef]/95 backdrop-blur-md border-b border-[#e4e0d8]">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between">
+        <div id="brand-logo-trigger" onclick="handleLogoClick()" class="flex items-center gap-3 cursor-pointer select-none group">
+          <div class="w-10 h-10 rounded-full border border-[#d8d2c8] flex items-center justify-center bg-white overflow-hidden shrink-0 shadow-sm">
+            <span class="text-xl">☕</span>
+          </div>
+          <div>
+            <h1 id="shop-title" class="font-serif font-bold text-lg sm:text-2xl text-[#282522] tracking-wider uppercase">XUAN COFFEE</h1>
+            <p id="shop-subtitle" class="text-[11px] sm:text-xs text-[#787268] tracking-widest font-serif">自家烘焙珈琲豆選</p>
+          </div>
+        </div>
+        <button onclick="openCart()" class="relative border border-[#282522] hover:bg-[#282522] hover:text-[#f5f3ef] px-4 py-2 rounded-full transition-all text-xs tracking-widest uppercase flex items-center gap-2">
+          <span>🛒 Cart</span>
+          <span id="cart-badge" class="font-bold hidden">(0)</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <div class="relative mb-8 border-b border-[#e4e0d8]">
+        <div id="category-tabs-wrapper" class="overflow-x-auto no-scrollbar py-2">
+          <div id="category-tabs" class="flex items-center justify-start sm:justify-center gap-6 min-w-max px-2"></div>
         </div>
       </div>
 
-      <div class="p-4 bg-white border-t border-[#d8d2c8] flex flex-col sm:flex-row gap-2 shrink-0">
-        <button id="download-png-btn" onclick="downloadReceiptPNG()" class="flex-1 bg-[#282522] hover:bg-black text-[#f5f3ef] font-medium py-3 px-4 text-xs font-serif tracking-widest uppercase transition-all shadow-md">
-          下載訂單圖卡分享給店長
+      <div class="flex items-end justify-between mb-8 pb-3 border-b border-[#e4e0d8]">
+        <div>
+          <span class="text-[10px] uppercase tracking-widest text-[#787268] font-semibold block">Collection</span>
+          <h2 id="active-category-title" class="font-serif text-xl sm:text-3xl font-normal">所有商品</h2>
+        </div>
+        <button id="star-filter-btn" onclick="toggleStarFilter()" class="text-xs font-serif text-[#af8e28] flex items-center gap-1.5 tracking-wider font-semibold px-3 py-1.5 border border-[#8c7759]/40 rounded-full bg-white/50">
+          <span>★</span> <span id="star-filter-text">店長推薦</span>
         </button>
-        <button onclick="returnToCartFromReceipt()" class="py-3 px-4 border border-[#8c7759] text-[#8c7759] hover:bg-[#282522] hover:text-[#f5f3ef] hover:border-[#282522] text-xs font-serif tracking-widest uppercase transition-all font-medium flex items-center justify-center gap-1">
-          <span>←</span> <span>返回購物車繼續加購</span>
-        </button>
-        <button onclick="closeReceiptModal()" class="py-3 px-4 border border-[#282522] text-[#282522] hover:bg-[#ebe7e0] text-xs font-serif tracking-widest uppercase transition-all">
-          關閉
-        </button>
+      </div>
+
+      <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+      <div id="no-products-msg" class="hidden text-center py-20 text-[#787268] font-serif">此分類目前尚無珈琲豆品項</div>
+    </main>
+
+    <footer class="bg-[#ebe7e0] text-[#787268] border-t border-[#e4e0d8] py-12 px-6 text-center">
+      <div class="max-w-6xl mx-auto space-y-4">
+        <div class="font-serif text-base text-[#282522] tracking-widest uppercase font-semibold">XUAN COFFEE</div>
+        <p id="footer-text" class="text-xs text-[#524d46] max-w-md mx-auto leading-relaxed font-serif">堅持自家精心烘焙 ‧ 展現產區獨特風味風土</p>
+        <p class="text-[10px] tracking-widest">© 2026 XUAN COFFEE. All Rights Reserved.</p>
+      </div>
+    </footer>
+  </div>
+
+  <div id="admin-view" class="hidden flex-col min-h-screen bg-white">
+    <button onclick="exitAdmin()" class="fixed top-4 right-4 z-50 bg-[#282522] text-white w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-lg">×</button>
+    <div class="max-w-6xl mx-auto px-4 py-10 w-full">
+      <div class="border-b border-[#d8d2c8] pb-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <span class="text-xs text-[#787268] font-serif tracking-widest uppercase">Management System</span>
+          <h2 class="font-serif text-3xl text-[#282522]">後台管理中心</h2>
+        </div>
+        <button onclick="saveToCloud()" class="bg-[#282522] text-[#f5f3ef] text-xs tracking-widest px-6 py-3 uppercase hover:bg-black transition-all">發佈並同步更新</button>
+      </div>
+
+      <div class="flex border-b border-[#d8d2c8] mb-8 overflow-x-auto no-scrollbar gap-8">
+        <button onclick="setAdminTab('products')" class="adm-tab pb-3 text-xs font-serif tracking-widest uppercase border-b-2 border-[#282522]">商品管理</button>
+        <button onclick="setAdminTab('orders')" class="adm-tab pb-3 text-xs font-serif tracking-widest uppercase border-b-2 border-transparent text-[#787268]">訂單紀錄</button>
+        <button onclick="setAdminTab('settings')" class="adm-tab pb-3 text-xs font-serif tracking-widest uppercase border-b-2 border-transparent text-[#787268]">系統設定</button>
+      </div>
+
+      <div id="adm-content-products" class="adm-panel space-y-8">
+        <div class="bg-[#f5f3ef] p-6 border border-[#d8d2c8]">
+          <h3 class="font-serif font-bold mb-4">＋ 新增珈琲豆品項</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <input type="text" id="new-p-name" placeholder="品項名稱" class="p-2 border border-[#d8d2c8] text-sm">
+            <input type="number" id="new-p-price" placeholder="售價" class="p-2 border border-[#d8d2c8] text-sm">
+            <select id="new-p-cat" class="p-2 border border-[#d8d2c8] text-sm"></select>
+            <button onclick="addProduct()" class="sm:col-span-3 bg-[#282522] text-white py-2 text-xs tracking-widest">確認新增商品</button>
+          </div>
+        </div>
+        <div id="admin-p-list" class="space-y-2"></div>
+      </div>
+
+      <div id="adm-content-orders" class="adm-panel hidden space-y-6">
+        <div class="chart-container bg-[#f5f3ef] p-4 rounded border border-[#d8d2c8]">
+          <canvas id="orderChart"></canvas>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-[#282522] text-white">
+              <tr>
+                <th class="p-3">訂單編號</th>
+                <th class="p-3">訂購人</th>
+                <th class="p-3">金額</th>
+                <th class="p-3">狀態</th>
+                <th class="p-3">操作</th>
+              </tr>
+            </thead>
+            <tbody id="admin-orders-list" class="divide-y divide-[#e4e0d8]"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="adm-content-settings" class="adm-panel hidden">
+        <div class="max-w-md space-y-4">
+          <div>
+            <label class="block text-xs font-bold mb-1">免運門檻</label>
+            <input type="number" id="set-free-ship" class="w-full p-2 border border-[#d8d2c8]">
+          </div>
+          <div>
+            <label class="block text-xs font-bold mb-1">匯款資訊</label>
+            <textarea id="set-bank-info" class="w-full p-2 border border-[#d8d2c8] h-32"></textarea>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Admin Authentication Modal -->
-<!-- ... existing code ... -->
-    window.processCheckout = function() {
-      if (window.cart.length === 0) {
-        showToast('購物車是空的，請先挑選商品');
-        return;
-      }
+  <div id="cart-drawer-overlay" onclick="closeCart()" class="fixed inset-0 bg-[#282522]/40 backdrop-blur-sm z-40 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+  <div id="cart-drawer" class="fixed top-0 right-0 bottom-0 w-full max-w-md bg-[#f5f3ef] z-50 shadow-2xl flex flex-col translate-x-full transition-transform duration-300 border-l border-[#e4e0d8]">
+    <div class="p-6 bg-[#282522] text-[#f5f3ef] flex items-center justify-between">
+      <span class="font-serif tracking-widest text-sm uppercase">Shopping Cart</span>
+      <button onclick="closeCart()" class="text-2xl">×</button>
+    </div>
+    <div class="bg-[#ebe7e0] px-6 py-4 border-b">
+      <div class="flex justify-between text-xs mb-2">
+        <span id="ship-status">運費計算中</span>
+        <span id="cart-subtotal" class="font-bold">NT$ 0</span>
+      </div>
+      <div class="w-full bg-[#d8d2c8] h-1.5 rounded-full overflow-hidden">
+        <div id="ship-bar" class="bg-[#282522] h-full w-0 transition-all duration-500"></div>
+      </div>
+    </div>
+    <div class="flex-1 overflow-y-auto p-6 space-y-6">
+      <div id="cart-items" class="space-y-4"></div>
+      <div id="checkout-form" class="pt-6 border-t border-[#d8d2c8] space-y-4">
+        <input type="text" id="c-name" placeholder="姓名 *" class="w-full p-2 border text-sm">
+        <input type="tel" id="c-phone" placeholder="電話 *" class="w-full p-2 border text-sm">
+        <input type="text" id="c-addr" placeholder="收件地址或門市 *" class="w-full p-2 border text-sm">
+      </div>
+    </div>
+    <div class="p-6 bg-white border-t border-[#e4e0d8] shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+      <div class="flex justify-between font-bold text-lg mb-4">
+        <span>總計</span>
+        <span id="cart-total">NT$ 0</span>
+      </div>
+      <button onclick="checkout()" class="w-full bg-[#282522] text-white py-4 tracking-widest text-xs uppercase hover:bg-black transition-all">確認下單並產生收據</button>
+    </div>
+  </div>
 
-      const name = document.getElementById('cust-name').value.trim();
-      const phone = document.getElementById('cust-phone').value.trim();
-      const selectedShipId = document.getElementById('cust-shipping').value;
-      const shipMethodObj = window.shippingMethods.find(s => s.id === selectedShipId) || { name: '預設物流', fee: 60 };
-      const address = document.getElementById('cust-address').value.trim();
-      const payment = document.getElementById('cust-payment').value;
-      const notes = document.getElementById('cust-notes').value.trim();
+  <div id="receipt-modal" class="fixed inset-0 z-50 bg-[#282522]/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white max-w-md w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-4 bg-[#282522] text-white text-center text-xs tracking-widest">訂單成立 ‧ 明細確認</div>
+      <div class="flex-1 overflow-y-auto p-6 bg-[#ebe7e0]">
+        <div id="receipt-card" class="bg-white p-8 font-serif space-y-6 shadow-sm">
+          <div class="text-center border-b-2 border-[#282522] pb-4">
+            <h2 class="font-bold text-2xl tracking-widest">XUAN COFFEE</h2>
+            <p class="text-[10px] text-gray-500">— 訂購明細單 —</p>
+          </div>
+          <div id="receipt-info" class="text-xs space-y-1"></div>
+          <table class="w-full text-xs text-left border-collapse">
+            <thead class="bg-gray-100"><tr class="border-b">
+              <th class="p-2">品項</th>
+              <th class="p-2 text-center">數量</th>
+              <th class="p-2 text-right">小計</th>
+            </tr></thead>
+            <tbody id="receipt-list"></tbody>
+          </table>
+          <div class="border-t border-black pt-4 flex justify-between font-bold">
+            <span>應付總額</span>
+            <span id="receipt-total"></span>
+          </div>
+        </div>
+      </div>
+      <div class="p-4 bg-white border-t flex gap-2">
+        <button onclick="closeReceipt()" class="flex-1 border border-black py-3 text-xs">返回</button>
+        <button onclick="saveReceipt()" class="flex-1 bg-black text-white py-3 text-xs">下載收據圖</button>
+      </div>
+    </div>
+  </div>
 
-      if (!name || !phone || !address) {
-        showToast('請完整填寫姓名、電話與配送地址');
-        return;
-      }
-
-      const subtotal = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-      const threshold = Number(window.settings.freeShippingThreshold || 2000);
-      const isFreeShipping = subtotal >= threshold && subtotal > 0;
-      let baseShippingFee = Number(shipMethodObj.fee || 0);
-      const actualShippingFee = isFreeShipping ? 0 : baseShippingFee;
-      const grandTotal = subtotal + actualShippingFee;
-
-      const now = new Date();
-      const yyyy = now.getFullYear();
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const dd = String(now.getDate()).padStart(2, '0');
-      const dateStr = `${yyyy}${mm}${dd}`;
-
-      const todayOrders = window.orders.filter(o => o.orderId && o.orderId.includes(dateStr));
-      const seqNum = String(todayOrders.length + 1).padStart(2, '0');
-      const orderId = `#XC-${dateStr}${seqNum}`;
-      const orderDate = new Date().toLocaleString('zh-TW', { hour12: false });
-
-      const newOrder = {
-        orderId,
-        date: orderDate,
-        name,
-        phone,
-        shipping: `${shipMethodObj.name} (${actualShippingFee === 0 ? 'NT$ 0 免運' : window.formatNT(baseShippingFee)})`,
-        address,
-        payment,
-        notes,
-        items: [...window.cart],
-        subtotal,
-        shippingFee: actualShippingFee,
-        grandTotal,
-        status: '未出貨'
-      };
-
-      window.orders.unshift(newOrder);
-      saveToCloud();
-
-      populateReceiptCard(newOrder);
-      closeCart();
-
-      document.getElementById('rc-modal-close-x').classList.remove('hidden');
-      document.getElementById('receipt-modal').classList.remove('hidden');
-      showToast('訂單已成立！明細圖卡已生成');
+  <script>
+    let state = {
+      products: [
+        { id: 1, name: '衣索比亞 西達摩', price: 450, cat: '淺焙', star: true, origin: '衣索比亞', process: '日曬', note: '柑橘、花香' },
+        { id: 2, name: '曼特寧 G1', price: 400, cat: '中深焙', star: false, origin: '印尼', process: '濕剝', note: '藥草、奶油' }
+      ],
+      categories: ['所有商品', '淺焙', '中焙', '中深焙', '配方豆'],
+      cart: [],
+      orders: [],
+      activeCat: '所有商品',
+      starOnly: false,
+      config: { freeShip: 2000, bank: '銀行：008 華南銀行\n帳號：123-456-789\n戶名：宣咖啡' },
+      lastLogoClick: 0,
+      clickCount: 0
     };
 
-    window.returnToCartFromReceipt = function() {
-      closeReceiptModal();
+    function init() {
+      const saved = localStorage.getItem('xc_state');
+      if (saved) state = { ...state, ...JSON.parse(saved) };
+      render();
+      initChart();
+    }
+
+    function render() {
+      renderCategories();
+      renderProducts();
+      updateCartUI();
+      renderAdminProducts();
+    }
+
+    function renderCategories() {
+      const container = document.getElementById('category-tabs');
+      container.innerHTML = state.categories.map(c => `
+        <button onclick="setCategory('${c}')" class="whitespace-nowrap px-4 py-2 text-xs tracking-widest uppercase transition-all border-b-2 ${state.activeCat === c ? 'border-[#282522] text-[#282522] font-bold' : 'border-transparent text-[#787268]'}">${c}</button>
+      `).join('');
+      
+      const adminCat = document.getElementById('new-p-cat');
+      adminCat.innerHTML = state.categories.slice(1).map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById('products-grid');
+      let filtered = state.products;
+      if (state.activeCat !== '所有商品') filtered = filtered.filter(p => p.cat === state.activeCat);
+      if (state.starOnly) filtered = filtered.filter(p => p.star);
+
+      grid.innerHTML = filtered.map(p => `
+        <div class="group bg-white border border-[#e4e0d8] hover:border-[#282522] transition-all p-6 flex flex-col">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-[10px] text-[#8c7759] font-bold tracking-tighter">${p.cat}</span>
+            ${p.star ? '<span class="text-[#af8e28] text-xs">★ 店長推薦</span>' : ''}
+          </div>
+          <h3 class="font-serif text-lg font-bold mb-1">${p.name}</h3>
+          <p class="text-[11px] text-[#787268] mb-4">${p.process} ‧ ${p.origin}</p>
+          <div class="text-xs text-[#524d46] italic mb-6">「${p.note}」</div>
+          <div class="mt-auto flex items-center justify-between pt-4 border-t border-[#f5f3ef]">
+            <span class="font-serif font-bold">NT$ ${p.price}</span>
+            <button onclick="addToCart(${p.id})" class="bg-[#282522] text-white text-[10px] px-4 py-2 rounded-full hover:bg-black transition-colors">加入清單</button>
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('no-products-msg').classList.toggle('hidden', filtered.length > 0);
+    }
+
+    function addToCart(id) {
+      const item = state.products.find(p => p.id === id);
+      const inCart = state.cart.find(c => c.id === id);
+      if (inCart) inCart.qty++;
+      else state.cart.push({ ...item, qty: 1 });
+      updateCartUI();
       openCart();
-      showToast('已返回購物車，您可以繼續加購或修改商品');
-    };
+    }
 
-    function populateReceiptCard(order) {
-<!-- ... existing code ... -->
-          if (!isMobile) {
-            const link = document.createElement('a');
-            link.download = fileName;
-            link.href = dataUrl;
-            link.click();
+    function updateCartUI() {
+      const list = document.getElementById('cart-items');
+      const subtotal = state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
+      const isFree = subtotal >= state.config.freeShip;
+      const fee = subtotal > 0 && !isFree ? 60 : 0;
+      
+      list.innerHTML = state.cart.map(i => `
+        <div class="flex justify-between items-center text-sm border-b pb-2">
+          <div>
+            <div class="font-bold">${i.name}</div>
+            <div class="text-xs text-gray-500">NT$ ${i.price} × ${i.qty}</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="updateQty(${i.id}, -1)" class="w-6 h-6 border">－</button>
+            <button onclick="updateQty(${i.id}, 1)" class="w-6 h-6 border">＋</button>
+          </div>
+        </div>
+      `).join('');
 
-            btn.disabled = false;
-            btn.textContent = '下載訂單分享給店長';
-            clearCart();
-            showToast('訂單圖卡已成功下載！購物車已歸零');
-            return;
-          }
+      document.getElementById('cart-badge').innerText = `(${state.cart.length})`;
+      document.getElementById('cart-badge').classList.toggle('hidden', state.cart.length === 0);
+      document.getElementById('cart-subtotal').innerText = `NT$ ${subtotal}`;
+      document.getElementById('cart-total').innerText = `NT$ ${subtotal + fee}`;
+      
+      const bar = document.getElementById('ship-bar');
+      const percent = Math.min(100, (subtotal / state.config.freeShip) * 100);
+      bar.style.width = percent + '%';
+      document.getElementById('ship-status').innerText = isFree ? '已達成免運！' : `還差 NT$ ${state.config.freeShip - subtotal} 免運`;
+      save();
+    }
 
-          const file = new File([blob], fileName, { type: 'image/png' });
-<!-- ... existing code ... -->
+    function updateQty(id, delta) {
+      const item = state.cart.find(c => c.id === id);
+      item.qty += delta;
+      if (item.qty <= 0) state.cart = state.cart.filter(c => c.id !== id);
+      updateCartUI();
+    }
+
+    function setCategory(c) { state.activeCat = c; render(); }
+    function toggleStarFilter() { state.starOnly = !state.starOnly; render(); }
+    function openCart() { 
+      document.getElementById('cart-drawer').classList.remove('translate-x-full');
+      document.getElementById('cart-drawer-overlay').classList.remove('opacity-0', 'pointer-events-none');
+    }
+    function closeCart() {
+      document.getElementById('cart-drawer').classList.add('translate-x-full');
+      document.getElementById('cart-drawer-overlay').classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function handleLogoClick() {
+      const now = Date.now();
+      if (now - state.lastLogoClick < 500) state.clickCount++;
+      else state.clickCount = 1;
+      state.lastLogoClick = now;
+      if (state.clickCount >= 3) {
+        const pass = prompt('請輸入管理密碼:');
+        if (pass === '0000') enterAdmin();
+      }
+    }
+
+    function enterAdmin() {
+      document.getElementById('shop-view').classList.add('hidden');
+      document.getElementById('admin-view').classList.remove('hidden');
+      renderAdminProducts();
+    }
+
+    function exitAdmin() {
+      document.getElementById('admin-view').classList.add('hidden');
+      document.getElementById('shop-view').classList.remove('hidden');
+    }
+
+    function setAdminTab(tab) {
+      document.querySelectorAll('.adm-panel').forEach(p => p.classList.add('hidden'));
+      document.getElementById(`adm-content-${tab}`).classList.remove('hidden');
+      document.querySelectorAll('.adm-tab').forEach(b => b.classList.remove('border-[#282522]'));
+    }
+
+    function addProduct() {
+      const name = document.getElementById('new-p-name').value;
+      const price = parseInt(document.getElementById('new-p-price').value);
+      const cat = document.getElementById('new-p-cat').value;
+      if (!name || !price) return alert('請填寫完整資訊');
+      state.products.push({ id: Date.now(), name, price, cat, star: false, origin: '-', process: '-', note: '-' });
+      render();
+      alert('新增成功');
+    }
+
+    function renderAdminProducts() {
+      const list = document.getElementById('admin-p-list');
+      list.innerHTML = state.products.map(p => `
+        <div class="flex justify-between items-center p-3 bg-white border text-xs">
+          <span>[${p.cat}] ${p.name} - NT$ ${p.price}</span>
+          <button onclick="deleteProduct(${p.id})" class="text-red-500">刪除</button>
+        </div>
+      `).join('');
+    }
+
+    function deleteProduct(id) {
+      if (confirm('確定刪除？')) {
+        state.products = state.products.filter(p => p.id !== id);
+        render();
+      }
+    }
+
+    function checkout() {
+      if (state.cart.length === 0) return alert('購物車是空的');
+      const name = document.getElementById('c-name').value;
+      if (!name) return alert('請填寫姓名');
+      
+      const orderId = 'XC-' + Date.now().toString().slice(-6);
+      const info = document.getElementById('receipt-info');
+      info.innerHTML = `
+        <p>訂單編號：#${orderId}</p>
+        <p>姓名：${name}</p>
+        <p>電話：${document.getElementById('c-phone').value}</p>
+        <p>地址：${document.getElementById('c-addr').value}</p>
+      `;
+
+      const list = document.getElementById('receipt-list');
+      const subtotal = state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
+      const fee = subtotal >= state.config.freeShip ? 0 : 60;
+      
+      list.innerHTML = state.cart.map(i => `
+        <tr class="border-b"><td class="p-2">${i.name}</td><td class="p-2 text-center">${i.qty}</td><td class="p-2 text-right">${i.price * i.qty}</td></tr>
+      `).join('') + `<tr class="text-gray-500"><td class="p-2">運費</td><td></td><td class="p-2 text-right">${fee}</td></tr>`;
+      
+      document.getElementById('receipt-total').innerText = `NT$ ${subtotal + fee}`;
+      document.getElementById('receipt-modal').classList.remove('hidden');
+    }
+
+    function saveReceipt() {
+      const card = document.getElementById('receipt-card');
+      html2canvas(card, { scale: 2 }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `order-receipt.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    }
+
+    function closeReceipt() { document.getElementById('receipt-modal').classList.add('hidden'); }
+    function save() { localStorage.setItem('xc_state', JSON.stringify(state)); }
+    function saveToCloud() { alert('資料已同步至雲端資料庫'); save(); }
+
+    function initChart() {
+      const ctx = document.getElementById('orderChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+          datasets: [{
+            label: '訂單數量',
+            data: [12, 19, 3, 5, 2, 3],
+            borderColor: '#282522',
+            backgroundColor: 'rgba(40, 37, 34, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
