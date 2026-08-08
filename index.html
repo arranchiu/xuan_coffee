@@ -416,6 +416,43 @@
 
           <div class="bg-[#ebe7e0] p-3.5 space-y-1.5 text-xs w-full box-border leading-relaxed">
             <div class="flex items-center justify-between text-[#524d46]">
+              <span>商品小計</span>
+              <span id="rc-subtotal" class="font-medium text-[#282522]">NT$ 0</span>
+            </div>
+            <div class="flex items-center justify-between text-[#524d46]">
+              <span>運費</span>
+              <span id="rc-shipping-fee" class="font-medium text-[#282522]">NT$ 60</span>
+            </div>
+            <div class="flex items-center justify-between text-sm font-bold text-[#282522] pt-2 border-t border-[#d8d2c8]">
+              <span>應付總金額</span>
+              <span id="rc-grand-total" class="font-serif text-lg text-[#282522] font-bold">NT$ 0</span>
+            </div>
+          </div>
+
+          <div class="bg-[#282522] text-[#f5f3ef] p-4 space-y-2 text-xs w-full box-border">
+            <div class="font-bold border-b border-[#3a3632] pb-1.5 tracking-wider uppercase">
+              付款資訊與下一步
+            </div>
+            <div id="rc-payment-details-content" class="space-y-1 text-[#e4e0d8] font-serif leading-relaxed">
+            </div>
+            <div class="pt-1 text-[11px] text-[#a8a298] tracking-widest text-center" id="rc-footer-line">
+              LINE ID: cow80610
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="p-3.5 sm:p-4 bg-[#f5f3ef] border-t border-[#d8d2c8] flex flex-col sm:flex-row gap-2 shrink-0">
+        <button id="download-png-btn" onclick="downloadReceiptPNG()" class="w-full bg-[#282522] hover:bg-black text-[#f5f3ef] font-medium py-3 px-4 tracking-widest text-xs uppercase transition-all shadow-sm">
+          下載訂單分享給店長
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Store Locator Assistant Modal -->
   <div id="store-locator-modal" class="fixed inset-0 z-50 bg-[#282522]/85 flex items-center justify-center p-4 hidden">
     <div class="bg-[#f5f3ef] text-[#282522] max-w-md w-full p-6 border border-[#d8d2c8] shadow-2xl space-y-5 font-serif">
@@ -961,7 +998,7 @@
         <h3 class="font-serif text-xl font-normal text-[#282522]">退出管理後台確認</h3>
       </div>
       <p class="text-xs text-[#524d46] leading-relaxed font-serif">
-        您尚有未發佈或未儲存的變更。請問您希望如何處理變更與設定？
+        您尚有無發佈或未儲存的變更。請問您希望如何處理變更與設定？
       </p>
       <div class="space-y-2 pt-2">
         <button onclick="exitAdminSaveAndClose()" class="w-full py-3 px-4 bg-[#282522] hover:bg-black text-[#f5f3ef] font-serif text-xs tracking-widest uppercase transition-all text-center">
@@ -1339,14 +1376,17 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
-      initFirebaseSync();
+      // 確保一開始就依據 localStorage/預設值設定好 UI，避免任何閃爍或殘影
       applySettingsToUI();
       renderShippingSelectOptions();
       renderCategoryTabs();
       renderProductsGrid();
       updateCartBadge();
+      
+      initFirebaseSync();
       setupTripleClickTriggers();
       setupAdminLoginEnterKey();
+
       window.addEventListener('resize', () => {
         if (typeof window.updateCategoryScrollIndicators === 'function') window.updateCategoryScrollIndicators();
       });
@@ -2570,7 +2610,7 @@
       document.getElementById('modal-prod-roast').value = p.roast || '';
       document.getElementById('modal-prod-process').value = p.process || '';
       document.getElementById('modal-prod-weight').value = p.weight || '半磅 (227g)';
-      document.getElementById('modal-prod-[#modal-prod-price]').value = p.price;
+      document.getElementById('modal-prod-price').value = p.price;
       document.getElementById('modal-prod-notes').value = p.notes || '';
       document.getElementById('modal-prod-image').value = p.image || '';
       document.getElementById('modal-file-name').textContent = p.image ? '已有設定圖片' : '未選擇檔案';
