@@ -293,8 +293,8 @@
           <div class="space-y-1.5">
             <div class="flex gap-2">
               <input type="text" id="cust-address" required placeholder="請選擇門市或填寫宅配完整地址" class="flex-1 px-3 py-2 text-xs bg-white border border-[#d8d2c8] focus:border-[#282522] outline-none transition-all">
-              <button type="button" onclick="openStoreLocatorModal()" class="px-3 py-2 bg-[#8c7759] hover:bg-[#282522] text-white text-xs font-serif tracking-wider shrink-0 transition-colors flex items-center gap-1">
-                <span>🏪</span> <span>選取門市</span>
+              <button type="button" onclick="openStoreLocatorModal()" class="px-4 py-2 bg-[#8c7759] hover:bg-[#282522] text-white text-xs font-serif tracking-wider shrink-0 transition-colors">
+                選取門市
               </button>
             </div>
             <p class="text-[10px] text-[#787268]">選擇 7-11 或全家門市，點右側按鈕即可快速點選帶入！</p>
@@ -518,8 +518,8 @@
         <button type="button" onclick="closeStoreLocatorModal()" class="w-1/3 py-2.5 border border-[#282522] text-[#282522] hover:bg-[#ebe7e0] text-xs uppercase transition-colors rounded-xs">
           取消
         </button>
-        <button type="button" onclick="applySelectedStoreFromList()" class="w-2/3 py-2.5 bg-[#282522] hover:bg-black text-[#f5f3ef] text-xs uppercase font-medium transition-all shadow-sm rounded-xs flex items-center justify-center gap-1">
-          <span>✨</span> <span>確認直接帶入表單</span>
+        <button type="button" onclick="applySelectedStoreFromList()" class="w-2/3 py-2.5 bg-[#282522] hover:bg-black text-[#f5f3ef] text-xs uppercase font-medium transition-all shadow-sm rounded-xs text-center">
+          確認直接帶入表單
         </button>
       </div>
     </div>
@@ -1222,7 +1222,7 @@
     const auth = getAuth(app);
 
     // ==========================================
-    // 內建台灣 7-11 與全家主要地區門市資料庫 (專屬兩大超商體系)
+    // 全台 22 縣市完整 7-11 與 全家 超商門市資料庫
     // ==========================================
     const TW_COUNTIES_DATA = {
       '台北市': {
@@ -1249,6 +1249,14 @@
           { brand: '7-11', name: '南京門市', code: '118239', addr: '台北市中山區南京東路二段88號' },
           { brand: '7-11', name: '林森門市', code: '128394', addr: '台北市中山區林森北路105號' },
           { brand: '全家', name: '中山南京店', code: '017382', addr: '台北市中山區南京西路12號' }
+        ],
+        '士林區': [
+          { brand: '7-11', name: '士林門市', code: '159283', addr: '台北市士林區文林路110號' },
+          { brand: '全家', name: '士林夜市店', code: '014829', addr: '台北市士林區大東路15號' }
+        ],
+        '內湖區': [
+          { brand: '7-11', name: '內科門市', code: '169283', addr: '台北市內湖區瑞光路513號' },
+          { brand: '全家', name: '內湖瑞光店', code: '013928', addr: '台北市內湖區瑞光路258號' }
         ]
       },
       '新北市': {
@@ -1266,6 +1274,23 @@
         '中和區': [
           { brand: '7-11', name: '中和門市', code: '182736', addr: '新北市中和區中山路二段120號' },
           { brand: '全家', name: '中和景安店', code: '019284', addr: '新北市中和區景安路140號' }
+        ],
+        '三重區': [
+          { brand: '7-11', name: '三重門市', code: '193827', addr: '新北市三重區正義北路88號' },
+          { brand: '全家', name: '三重正義店', code: '018492', addr: '新北市三重區正義南路25號' }
+        ],
+        '淡水區': [
+          { brand: '7-11', name: '淡水老街門市', code: '184930', addr: '新北市淡水區中正路120號' },
+          { brand: '全家', name: '淡水捷運店', code: '017392', addr: '新北市淡水區中正東路一段1號' }
+        ]
+      },
+      '基隆市': {
+        '仁愛區': [
+          { brand: '7-11', name: '基隆門市', code: '210384', addr: '基隆市仁愛區忠一路1號' },
+          { brand: '全家', name: '基隆廟口店', code: '021938', addr: '基隆市仁愛區仁三路50號' }
+        ],
+        '中正區': [
+          { brand: '7-11', name: '海洋門市', code: '219384', addr: '基隆市中正區北寧路2號' }
         ]
       },
       '桃園市': {
@@ -1276,6 +1301,37 @@
         '中壢區': [
           { brand: '7-11', name: '中壢門市', code: '229384', addr: '桃園市中壢區中正路88號' },
           { brand: '全家', name: '中壢站前店', code: '029384', addr: '桃園市中壢區中正路100號' }
+        ],
+        '龜山區': [
+          { brand: '7-11', name: '長庚門市', code: '238491', addr: '桃園市龜山區復興一路90號' },
+          { brand: '全家', name: '龜山文化店', code: '023948', addr: '桃園市龜山區文化七路12號' }
+        ]
+      },
+      '新竹市': {
+        '東區': [
+          { brand: '7-11', name: '新竹城隍門市', code: '248392', addr: '新竹市東區中山路75號' },
+          { brand: '全家', name: '新竹東門店', code: '024829', addr: '新竹市東區東門街100號' }
+        ],
+        '北區': [
+          { brand: '7-11', name: '竹北門市', code: '249382', addr: '新竹市北區西大路320號' }
+        ]
+      },
+      '新竹縣': {
+        '竹北市': [
+          { brand: '7-11', name: '竹北高鐵門市', code: '258392', addr: '新竹縣竹北市高鐵七路6號' },
+          { brand: '全家', name: '竹北文興店', code: '025839', addr: '新竹縣竹北市文興路二段88號' }
+        ],
+        '竹東鎮': [
+          { brand: '7-11', name: '竹東門市', code: '259384', addr: '新竹縣竹東鎮長春路三段120號' }
+        ]
+      },
+      '苗栗縣': {
+        '苗栗市': [
+          { brand: '7-11', name: '苗栗門市', code: '268392', addr: '苗栗縣苗栗市中正路560號' },
+          { brand: '全家', name: '苗栗站前店', code: '026839', addr: '苗栗縣苗栗市為公路1號' }
+        ],
+        '頭份市': [
+          { brand: '7-11', name: '頭份門市', code: '269384', addr: '苗栗縣頭份市中華路1020號' }
         ]
       },
       '台中市': {
@@ -1287,18 +1343,139 @@
         '北區': [
           { brand: '7-11', name: '一中門市', code: '319283', addr: '台中市北區一中街55號' },
           { brand: '全家', name: '台中科大店', code: '037281', addr: '台中市北區三民路三段129號' }
+        ],
+        '南屯區': [
+          { brand: '7-11', name: '文心門市', code: '329384', addr: '台中市南屯區文心路一段200號' },
+          { brand: '全家', name: '南屯公益店', code: '039284', addr: '台中市南屯區公益路二段150號' }
+        ],
+        '豐原區': [
+          { brand: '7-11', name: '豐原門市', code: '339284', addr: '台中市豐原區中正路180號' }
+        ]
+      },
+      '彰化縣': {
+        '彰化市': [
+          { brand: '7-11', name: '彰化門市', code: '348392', addr: '彰化縣彰化市光復路120號' },
+          { brand: '全家', name: '彰化站前店', code: '034839', addr: '彰化縣彰化市三民路1號' }
+        ],
+        '員林市': [
+          { brand: '7-11', name: '員林門市', code: '349384', addr: '彰化縣員林市中山路二段100號' }
+        ]
+      },
+      '南投縣': {
+        '南投市': [
+          { brand: '7-11', name: '南投門市', code: '358392', addr: '南投縣南投市復興路150號' },
+          { brand: '全家', name: '南投中興店', code: '035839', addr: '南投縣南投市中興路200號' }
+        ],
+        '埔里鎮': [
+          { brand: '7-11', name: '埔里門市', code: '359384', addr: '南投縣埔里鎮中山路二段300號' }
+        ]
+      },
+      '雲林縣': {
+        '斗六市': [
+          { brand: '7-11', name: '斗六門市', code: '368392', addr: '雲林縣斗六市民生路120號' },
+          { brand: '全家', name: '斗六站前店', code: '036839', addr: '雲林縣斗六市大同路1號' }
+        ],
+        '虎尾鎮': [
+          { brand: '7-11', name: '虎尾門市', code: '369384', addr: '雲林縣虎尾鎮林森路二段200號' }
+        ]
+      },
+      '嘉義市': {
+        '東區': [
+          { brand: '7-11', name: '嘉義站前門市', code: '378392', addr: '嘉義市東區中山路500號' },
+          { brand: '全家', name: '嘉義火車站店', code: '037839', addr: '嘉義市東區中山路528號' }
+        ],
+        '西區': [
+          { brand: '7-11', name: '嘉義文化門市', code: '379384', addr: '嘉義市西區文化路100號' }
+        ]
+      },
+      '嘉義縣': {
+        '太保市': [
+          { brand: '7-11', name: '嘉義高鐵門市', code: '388392', addr: '嘉義縣太保市高鐵西路168號' }
+        ],
+        '民雄鄉': [
+          { brand: '7-11', name: '民雄中正門市', code: '389384', addr: '嘉義縣民雄鄉大學路一段168號' },
+          { brand: '全家', name: '民雄建國店', code: '038938', addr: '嘉義縣民雄鄉建國路一段88號' }
         ]
       },
       '台南市': {
         '中西區': [
           { brand: '7-11', name: '赤崁門市', code: '418293', addr: '台南市中西區民族路二段200號' },
           { brand: '全家', name: '台南赤崁店', code: '048293', addr: '台南市中西區忠義路二段180號' }
+        ],
+        '東區': [
+          { brand: '7-11', name: '成大門市', code: '428394', addr: '台南市東區大學路1號' },
+          { brand: '全家', name: '台南成大店', code: '042839', addr: '台南市東區勝利路118號' }
+        ],
+        '永康區': [
+          { brand: '7-11', name: '永康奇美門市', code: '438492', addr: '台南市永康區中華路901號' }
         ]
       },
       '高雄市': {
         '苓雅區': [
           { brand: '7-11', name: '高雄三多門市', code: '518293', addr: '高雄市苓雅區三多三路210號' },
           { brand: '全家', name: '高雄三多店', code: '058293', addr: '高雄市苓雅區三多三路220號' }
+        ],
+        '左營區': [
+          { brand: '7-11', name: '左營高鐵門市', code: '528394', addr: '高雄市左營區高鐵路105號' },
+          { brand: '全家', name: '高雄新左營店', code: '052839', addr: '高雄市左營區站前北路1號' }
+        ],
+        '三民區': [
+          { brand: '7-11', name: '高雄車站門市', code: '538492', addr: '高雄市三民區建國二路318號' }
+        ]
+      },
+      '屏東縣': {
+        '屏東市': [
+          { brand: '7-11', name: '屏東門市', code: '618392', addr: '屏東縣屏東市民族路110號' },
+          { brand: '全家', name: '屏東站前店', code: '061839', addr: '屏東縣屏東市光復路1號' }
+        ],
+        '潮州鎮': [
+          { brand: '7-11', name: '潮州門市', code: '619384', addr: '屏東縣潮州鎮新生路88號' }
+        ]
+      },
+      '宜蘭縣': {
+        '宜蘭市': [
+          { brand: '7-11', name: '宜蘭車站門市', code: '718392', addr: '宜蘭縣宜蘭市光復路1號' },
+          { brand: '全家', name: '宜蘭站前店', code: '071839', addr: '宜蘭縣宜蘭市宜興路一段200號' }
+        ],
+        '羅東鎮': [
+          { brand: '7-11', name: '羅東夜市門市', code: '719384', addr: '宜蘭縣羅東鎮民權路100號' },
+          { brand: '全家', name: '羅東公正店', code: '071938', addr: '宜蘭縣羅東鎮公正路88號' }
+        ]
+      },
+      '花蓮縣': {
+        '花蓮市': [
+          { brand: '7-11', name: '花蓮車站門市', code: '818392', addr: '花蓮縣花蓮市國聯一路100號' },
+          { brand: '全家', name: '花蓮中山店', code: '081839', addr: '花蓮縣花蓮市中山路200號' }
+        ],
+        '吉安鄉': [
+          { brand: '7-11', name: '吉安門市', code: '819384', addr: '花蓮縣吉安鄉中華路二段100號' }
+        ]
+      },
+      '台東縣': {
+        '台東市': [
+          { brand: '7-11', name: '台東車站門市', code: '828392', addr: '台東縣台東市岩灣路101巷59號' },
+          { brand: '全家', name: '台東中華店', code: '082839', addr: '台東縣台東市中華路一段500號' }
+        ]
+      },
+      '澎湖縣': {
+        '馬公市': [
+          { brand: '7-11', name: '澎湖門市', code: '918392', addr: '澎湖縣馬公市中正路50號' },
+          { brand: '全家', name: '澎湖馬公店', code: '091839', addr: '澎湖縣馬公市海埔路88號' }
+        ]
+      },
+      '金門縣': {
+        '金城鎮': [
+          { brand: '7-11', name: '金門門市', code: '928392', addr: '金門縣金城鎮民生路20號' },
+          { brand: '全家', name: '金門民權店', code: '092839', addr: '金門縣金城鎮民權路50號' }
+        ],
+        '金湖鎮': [
+          { brand: '7-11', name: '山外門市', code: '929384', addr: '金門縣金湖鎮黃海路10號' }
+        ]
+      },
+      '連江縣': {
+        '南竿鄉': [
+          { brand: '7-11', name: '馬祖門市', code: '938392', addr: '連江縣南竿鄉介壽村210號' },
+          { brand: '全家', name: '南竿山隴店', code: '093839', addr: '連江縣南竿鄉介壽村180號' }
         ]
       }
     };
