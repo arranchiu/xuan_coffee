@@ -799,7 +799,7 @@
             <h3 class="font-serif font-semibold text-base text-[#282522] tracking-wider">
               ☁️ Firebase 雲端資料庫連線狀態
             </h3>
-            <p class="text-xs text-[#787268] font-serif mt-1">目前已成功連接至您的專屬 Firebase 雲端資料庫 (`xuancoffee`)。所有商品、設定與歷史訂單將會在所有裝置間自動秒速同步。</p>
+            <p class="text-xs text-[#787268] font-serif mt-1">目前已成功連接至您的專屬 Firebase 雲端資料庫 (`xuancoffee-new`)。所有商品、設定與歷史訂單將會在所有裝置間自動秒速同步。</p>
           </div>
           
           <div class="p-3.5 bg-[#f5f3ef] border border-[#d8d2c8] text-xs font-serif space-y-2">
@@ -2038,7 +2038,7 @@
               btn.disabled = false;
               btn.textContent = '下載訂單分享給店長';
               clearCart();
-              closeReceiptModal();
+              closeReceiptModal(); // 關閉訂單視窗回到首頁
               showToast('請在分享選單中選擇「儲存影像」即可存入相簿！');
               return;
             } catch (shareErr) {
