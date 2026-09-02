@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-TW" class="h-full bg-[#f5f3ef]">
 <head>
@@ -11,7 +12,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:wght@400;500;600;700&family=Noto+Serif+TC:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif+TC:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -33,7 +34,7 @@
             }
           },
           fontFamily: {
-            serif: ['Lora', '"Noto Serif TC"', 'serif'],
+            serif: ['"Noto Serif TC"', 'serif'],
             sans: ['Inter', 'sans-serif'],
           }
         }
@@ -799,13 +800,13 @@
             <h3 class="font-serif font-semibold text-base text-[#282522] tracking-wider">
               ☁️ Firebase 雲端資料庫連線狀態
             </h3>
-            <p class="text-xs text-[#787268] font-serif mt-1">目前已成功連接至您的專屬 Firebase 雲端資料庫 (`xuancoffee-new`)。所有商品、設定與歷史訂單將會在所有裝置間自動秒速同步。</p>
+            <p class="text-xs text-[#787268] font-serif mt-1">目前已成功連接至您的專屬 Firebase 雲端資料庫 (`xuancoffee`)。所有商品、設定與歷史訂單將會在所有裝置間自動秒速同步。</p>
           </div>
           
           <div class="p-3.5 bg-[#f5f3ef] border border-[#d8d2c8] text-xs font-serif space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[#524d46]">專案代號 (Project ID)：</span>
-              <span class="font-bold text-[#282522]">xuancoffee-new</span>
+              <span class="font-bold text-[#282522]">xuancoffee</span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-[#524d46]">雲端同步狀態：</span>
@@ -1126,14 +1127,14 @@
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Dedicated Firebase Configuration (已換上100%正確的真實金鑰)
+    // Dedicated Firebase Configuration
     const firebaseConfig = {
-      apiKey: "AIzaSyAmLSxh3h46Ieuo6DRJEJ3c1QEv0VeTZUw",
-      authDomain: "xuancoffee-new.firebaseapp.com",
-      projectId: "xuancoffee-new",
-      storageBucket: "xuancoffee-new.firebasestorage.app",
-      messagingSenderId: "642862818311",
-      appId: "1:642862818311:web:ec997d71dabb7df99fb6a2"
+      apiKey: "AIzaSyD3Q4Uc_0RiUPAEdZB783SlYv-ZUT3HhL4",
+      authDomain: "xuancoffee.firebaseapp.com",
+      projectId: "xuancoffee",
+      storageBucket: "xuancoffee.firebasestorage.app",
+      messagingSenderId: "345408987816",
+      appId: "1:345408987816:web:5a177022ad97aaa5d4d89d"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -1244,7 +1245,7 @@
       }
 
       try {
-        const docRef = doc(db, 'shops', 'xuancoffee-new'); // 已替換為新專案路徑
+        const docRef = doc(db, 'shops', 'xuancoffee');
         
         onSnapshot(docRef, (docSnap) => {
           if (docSnap.exists()) {
@@ -1279,7 +1280,7 @@
 
     async function saveToCloud() {
       try {
-        const docRef = doc(db, 'shops', 'xuancoffee-new'); // 已替換為新專案路徑
+        const docRef = doc(db, 'shops', 'xuancoffee');
         await setDoc(docRef, {
           products: window.products,
           categories: window.categories,
@@ -2021,7 +2022,6 @@
 
             btn.disabled = false;
             btn.textContent = '下載訂單分享給店長';
-            closeReceiptModal(); // 關閉訂單視窗回到首頁
             showToast('訂單圖卡已成功下載！');
             return;
           }
@@ -2038,7 +2038,7 @@
               btn.disabled = false;
               btn.textContent = '下載訂單分享給店長';
               clearCart();
-              closeReceiptModal(); // 關閉訂單視窗回到首頁
+              closeReceiptModal();
               showToast('請在分享選單中選擇「儲存影像」即可存入相簿！');
               return;
             } catch (shareErr) {
@@ -2050,17 +2050,15 @@
           if (targetImg) {
             targetImg.src = dataUrl;
             document.getElementById('mobile-img-save-modal').classList.remove('hidden');
-            closeReceiptModal(); // 開啟長按視窗的同時關閉原來的明細視窗
-          } else {
-            const link = document.createElement('a');
-            link.download = fileName;
-            link.href = dataUrl;
-            link.click();
-
-            btn.disabled = false;
-            btn.textContent = '下載訂單分享給店長';
-            closeReceiptModal(); // 關閉訂單視窗回到首頁
           }
+
+          const link = document.createElement('a');
+          link.download = fileName;
+          link.href = dataUrl;
+          link.click();
+
+          btn.disabled = false;
+          btn.textContent = '下載訂單分享給店長';
         }, 'image/png');
 
       }).catch(err => {
