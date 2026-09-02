@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>XUAN COFFEE 自家烘焙珈琲豆 - 管理後台</title>
+  <title>XUAN COFFEE 自家烘焙珈琲豆選 - 管理後台</title>
 
   <!-- Dynamic Browser Favicon -->
   <link id="site-favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23282522' stroke-width='1.8'%3E%3Cpath d='M18 8h1a4 4 0 0 1 0 8h-1'/%3E%3Cpath d='M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z'/%3E%3Cline x1='6' y1='1' x2='6' y2='4'/%3E%3Cline x1='10' y1='1' x2='10' y2='4'/%3E%3Cline x1='14' y1='1' x2='14' y2='4'/%3E%3C/svg%3E">
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts (已新增 Lora 字體解決數字對齊問題) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif+TC:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:wght@400;500;600;700&family=Noto+Serif+TC:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -31,6 +31,10 @@
               accent: '#8c7759',
               accentbg: '#f0ebe1'
             }
+          },
+          fontFamily: {
+            serif: ['Lora', '"Noto Serif TC"', 'serif'],
+            sans: ['Inter', 'sans-serif'],
           }
         }
       }
@@ -41,9 +45,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
-    body {
-      font-variant-numeric: lining-nums tabular-nums !important;
-    }
     ::-webkit-scrollbar {
       width: 4px;
       height: 4px;
@@ -804,7 +805,7 @@
           <div class="p-3.5 bg-[#f5f3ef] border border-[#d8d2c8] text-xs font-serif space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[#524d46]">專案代號 (Project ID)：</span>
-              <span class="font-bold text-[#282522]">xuancoffee</span>
+              <span class="font-bold text-[#282522]">xuancoffee-new</span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-[#524d46]">雲端同步狀態：</span>
@@ -1125,15 +1126,15 @@
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Dedicated Firebase Configuration
-   const firebaseConfig = {
-  apiKey: "AIzaSyAmLSxh3h46leuo6DRJEJ3c1Qev0VeTZUw",
-  authDomain: "xuancoffee-new.firebaseapp.com",
-  projectId: "xuancoffee-new",
-  storageBucket: "xuancoffee-new.firebasestorage.app",
-  messagingSenderId: "642862818311",
-  appId: "1:642862818311:web:ec997d71dabb7df99fb6a2"
-};
+    // Dedicated Firebase Configuration (已替換為新專案金鑰)
+    const firebaseConfig = {
+      apiKey: "AIzaSyAmLSxh3h46leuo6DRJEJ3c1Qev0VeTZUw",
+      authDomain: "xuancoffee-new.firebaseapp.com",
+      projectId: "xuancoffee-new",
+      storageBucket: "xuancoffee-new.firebasestorage.app",
+      messagingSenderId: "642862818311",
+      appId: "1:642862818311:web:ec997d71dabb7df99fb6a2"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -1243,7 +1244,7 @@
       }
 
       try {
-        const docRef = doc(db, 'shops', 'xuancoffee');
+        const docRef = doc(db, 'shops', 'xuancoffee-new'); // 已替換為新專案路徑
         
         onSnapshot(docRef, (docSnap) => {
           if (docSnap.exists()) {
@@ -1278,7 +1279,7 @@
 
     async function saveToCloud() {
       try {
-        const docRef = doc(db, 'shops', 'xuancoffee');
+        const docRef = doc(db, 'shops', 'xuancoffee-new'); // 已替換為新專案路徑
         await setDoc(docRef, {
           products: window.products,
           categories: window.categories,
