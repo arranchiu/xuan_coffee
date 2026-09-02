@@ -31,10 +31,6 @@
               accent: '#8c7759',
               accentbg: '#f0ebe1'
             }
-          },
-          fontFamily: {
-            serif: ['"Noto Serif TC"', 'serif'],
-            sans: ['Inter', 'sans-serif'],
           }
         }
       }
@@ -1127,14 +1123,14 @@
     import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // Dedicated Firebase Configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyD3Q4Uc_0RiUPAEdZB783SlYv-ZUT3HhL4",
-      authDomain: "xuancoffee.firebaseapp.com",
-      projectId: "xuancoffee",
-      storageBucket: "xuancoffee.firebasestorage.app",
-      messagingSenderId: "345408987816",
-      appId: "1:345408987816:web:5a177022ad97aaa5d4d89d"
-    };
+   const firebaseConfig = {
+  apiKey: "AIzaSyAmLSxh3h46leuo6DRJEJ3c1Qev0VeTZUw",
+  authDomain: "xuancoffee-new.firebaseapp.com",
+  projectId: "xuancoffee-new",
+  storageBucket: "xuancoffee-new.firebasestorage.app",
+  messagingSenderId: "642862818311",
+  appId: "1:642862818311:web:ec997d71dabb7df99fb6a2"
+};
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -2021,6 +2017,7 @@
 
             btn.disabled = false;
             btn.textContent = '下載訂單分享給店長';
+            closeReceiptModal(); // 關閉訂單視窗回到首頁
             showToast('訂單圖卡已成功下載！');
             return;
           }
@@ -2049,15 +2046,17 @@
           if (targetImg) {
             targetImg.src = dataUrl;
             document.getElementById('mobile-img-save-modal').classList.remove('hidden');
+            closeReceiptModal(); // 開啟長按視窗的同時關閉原來的明細視窗
+          } else {
+            const link = document.createElement('a');
+            link.download = fileName;
+            link.href = dataUrl;
+            link.click();
+
+            btn.disabled = false;
+            btn.textContent = '下載訂單分享給店長';
+            closeReceiptModal(); // 關閉訂單視窗回到首頁
           }
-
-          const link = document.createElement('a');
-          link.download = fileName;
-          link.href = dataUrl;
-          link.click();
-
-          btn.disabled = false;
-          btn.textContent = '下載訂單分享給店長';
         }, 'image/png');
 
       }).catch(err => {
