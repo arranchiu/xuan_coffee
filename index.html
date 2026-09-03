@@ -1146,6 +1146,16 @@
       return `NT$ ${num.toLocaleString('zh-TW')}`;
     };
 
+window.formatImageUrl = function(url) {
+  if (!url) return '';
+  url = url.trim();
+  const driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+  if (driveMatch && driveMatch[1]) {
+    return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1000`;
+  }
+  return url;
+};
+
     window.setProcessValue = function(val, inputId) {
       const input = document.getElementById(inputId);
       if (input) {
@@ -2188,7 +2198,7 @@
       window.settings.shopSubtitle = document.getElementById('cfg-shop-subtitle').value.trim() || '自家烘焙珈琲豆選';
       window.settings.footerText = document.getElementById('cfg-footer-text').value.trim() || '堅持自家精心烘焙 ‧ 展現產區獨特風味風土 ‧ 讓每一口珈琲都是回味無窮的享受';
       window.settings.showAdminHint = document.getElementById('cfg-show-admin-hint').value === 'true';
-      window.settings.logoUrl = document.getElementById('cfg-logo-url').value.trim();
+      window.settings.logoUrl = window.formatImageUrl(document.getElementById('cfg-logo-url').value);
       window.settings.showPhotos = document.getElementById('cfg-show-photos').value === 'true';
       window.settings.freeShippingThreshold = Number(document.getElementById('cfg-free-shipping').value || 2000);
       window.settings.bankName = document.getElementById('cfg-bank-name').value.trim();
@@ -2476,7 +2486,7 @@
       const weight = document.getElementById('prod-weight').value.trim();
       const price = Number(document.getElementById('prod-price').value);
       const notes = document.getElementById('prod-notes').value.trim();
-      const image = document.getElementById('prod-image').value.trim();
+      const image = window.formatImageUrl(document.getElementById('prod-image').value);
       const isStar = document.getElementById('prod-star').checked;
 
       if (editId) {
